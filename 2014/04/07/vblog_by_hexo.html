@@ -1,0 +1,540 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>把vblog从octopress搬到hexo上了 | VBlog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Vell Bibi">
+    
+    <meta name="description" content="换博客的原因：
+
+前几天一直在用octopress，觉得它的设计真不错，很有创意，就是配置文件太多了，有点受不了啊，装个插件费劲死了，光pygments这个东东把我害惨了快~；各种错误，代码高亮太坑爹了
+小问题还好解决，就是太繁琐了，可速度慢这个问题真是硬伤啊~我这才不到二十篇帖子，生成的时间有时能到近一分钟~真是奇慢无比啊！这可真受不了，到时上百篇帖子那还得了！果断准备换平台了
+最近对node.js很感冒，虽然很是不了解，但非常想了解，真正我google一下node.js的时候奇迹发生了，hexo被我发现了,真是发现新大陆了
+发现hexo和octopress很像，可以说是兼容octopress了；刚开始觉得它就是node.js版的octopress，不过慢慢发现hexo和octopress就像是linux和unix；
+hexo更快更简洁，相当给力，一个台湾同胞做的，英文文档也写得很全，虽然现在用户貌似不多，我相信一定会火的！">
+    
+    
+	<meta name="keywords" content="
+		 hexo,  octopress,  vblog, 
+		
+		vblog,vell001,vellbibi">
+	
+    
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="vellbibi" />
+    <meta name="twitter:title" content="把vblog从octopress搬到hexo上了 | VBlog" />
+      
+    
+    
+    <link rel="alternative" href="/atom.xml" title="VBlog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="VBlog" title="VBlog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="VBlog">VBlog</a></h1>
+				<h2 class="blog-motto">Welcome to vell001&#39;s world</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">首页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li><form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" maxlength="20" placeholder="Search" />
+						<input type="hidden" name="q" value="site:vview.ml">
+					</form></li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2014/04/07/vblog_by_hexo.html" title="把vblog从octopress搬到hexo上了" itemprop="url">把vblog从octopress搬到hexo上了</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://vview.ml/about" title="Vell Bibi">Vell Bibi</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2014-04-07T07:33:40.000Z" itemprop="datePublished">发表于4月 7 2014</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#换博客的原因："><span class="toc-number">1.</span> <span class="toc-text">换博客的原因：</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#过程"><span class="toc-number">2.</span> <span class="toc-text">过程</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#结果"><span class="toc-number">3.</span> <span class="toc-text">结果</span></a></li></ol>
+		
+		</div>
+		
+		<h1 id="换博客的原因：">换博客的原因：</h1>
+<ol>
+<li>前几天一直在用<a href="http://octopress.org/" target="_blank">octopress</a>，觉得它的设计真不错，很有创意，就是配置文件太多了，有点受不了啊，装个插件费劲死了，光pygments这个东东把我害惨了快~；各种错误，代码高亮太坑爹了</li>
+<li>小问题还好解决，就是太繁琐了，可速度慢这个问题真是硬伤啊~我这才不到二十篇帖子，生成的时间有时能到近一分钟~真是奇慢无比啊！这可真受不了，到时上百篇帖子那还得了！果断准备换平台了</li>
+<li>最近对<a href="http://nodejs.org/" target="_blank">node.js</a>很感冒，虽然很是不了解，但非常想了解，真正我google一下node.js的时候奇迹发生了，<a href="http://hexo.io/" target="_blank">hexo</a>被我发现了,真是发现新大陆了</li>
+<li>发现hexo和octopress很像，可以说是兼容octopress了；刚开始觉得它就是node.js版的octopress，不过慢慢发现hexo和octopress就像是linux和unix；</li>
+<li>hexo更快更简洁，相当给力，一个台湾同胞做的，英文文档也写得很全，虽然现在用户貌似不多，我相信一定会火的！<a id="more"></a>
+
+</li>
+</ol>
+<h1 id="过程">过程</h1>
+<blockquote>
+<p>换的过程可以用曲折来描述，不是因为hexo太麻烦（hexo正常安装还是很简单的），而是因为学校网太垃圾，windows太难用，vm下的linux太坑爹~，还有自己git技术太菜  </p>
+</blockquote>
+<ul>
+<li>之前费劲周折在centos上安装node.js，最后还是没安装上，疯了快~错误原因居然会是找不见js文件，可是按它提示的路径我手动给找见了，服了~暂时无解，已经把centos删了（vmware里面的）</li>
+<li>后来图个新鲜，装个linuxmint玩玩，编译安装node.js很简单，就是编译时间有点长，快10分钟了。不过安装hexo的时候就悲剧了：<figure class="highlight"><table><tr><td class="gutter"><pre>1
+</pre></td><td class="code"><pre>npm <span class="keyword">install</span> hexo -g
+</pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>我可以说执行这个命令上百遍了，全是卡在了某个下载文件那！还在windows下试了，也是同样！整了我昨天一晚上啊！今天偷偷用了下别人的cmcc居然一下就安装上了~学校网伤不起！！！真想说：<strong>珍爱生命，远离科大~</strong></p>
+<ul>
+<li>在linuxmint和windows上都装好了hexo了，开始配置自己的博客了，我使用的是<a href="https://github.com/wuchong/jacman" target="_blank">jacman</a>这个主题，感觉不错，很喜欢这个主题的配色，随便改了改就拿来用了</li>
+<li>配置好后在linuxmint下部署到<a href="http://gitcafe.com" target="_blank">gitcafe</a>上了，一个国内高仿的github。国内速度还不错，使用我的另一个域名发布：<a href="http://vview.ml">vview.ml</a></li>
+<li>正当我用得high了，vmware直接给我来个死机，linuxmint没有任何反应了，和我上次用ubuntu一样，当时正因为ubuntu在vm下老死机才换到centos的，现在换linuxmint了还是难逃厄运。悲催，又不想重启电脑，把vm的进程关了，想想，在windows下应该也能很简单的使用吧。</li>
+<li>环境换到windows下了，没有死机了，却来了各种莫名的error。windows的命令行不是一般难用啊！换到git的bash也是一样，甚至再装了个cygwin，还是没有linux的干脆。在执行：<figure class="highlight"><table><tr><td class="gutter"><pre>1
+</pre></td><td class="code"><pre>hexo deploy
+</pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>时有一个永恒的error：<br><img src="/images/20140407161850.png" alt="error"><br>google了一大堆解决方法，貌似都是针对linux的，在cygwin下都出错，no idea!虽然我相信这个问题一定有啥办法可以解决，但是太费劲了，windows坑爹啊！</p>
+<ul>
+<li>这个问题肯定是一个git的问题，而且肯定是身份验证publickey的问题，既然是这样，我就直接使用windows下git默认的gui了，界面版的操作也挺简单的，省去了命令行的繁琐（我更喜欢命令行，前提是不在windows下），直接进<em>.deploy</em>文件夹右键找<em>git gui</em>，然后~~~</li>
+<li>最后我在windows下成功发布博客了，这篇博客也将在windows下发布。虽然过程很悲催，至少达到目的了，先歇会，来句口号：珍爱生命，远离windows~（呵呵，仅仅针对对无聊的程序猿）</li>
+</ul>
+<h1 id="结果">结果</h1>
+<ul>
+<li>博客平台更换成功！博客生成速度显著提升：<br><img src="/images/20140407163255.png" alt="speed">  </li>
+<li>体验到了hexo的简洁高效，再也不想回到octopress了！~</li>
+<li>再来张本博客的截图吧：<br><img src="/images/20140407163602.png" alt="vblog"></li>
+</ul>
+  
+		
+<p class="original_url">
+	原文地址: <a target="_blank" href="http://vview.ml/2014/04/07/vblog_by_hexo.html">http://vview.ml/2014/04/07/vblog_by_hexo.html</a></br>
+	written by <a target="_blank" href="http://vview.ml/about ">Vell Bibi</a> posted at <a target="_blank" href="http://vview.ml">VBlog</a>
+</p>
+
+	</div>
+		<footer class="article-footer clearfix">
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/hexo/">hexo</a><a href="/tags/vblog/">vblog</a><a href="/tags/octopress/">octopress</a>
+  </div>
+
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://vview.ml/2014/04/07/vblog_by_hexo.html" data-title="把vblog从octopress搬到hexo上了 | VBlog" data-tsina="null" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2014/04/09/VYoudao.html" title="奋战的又一个python程序-VYoudao">
+  <strong>上一篇：</strong><br/>
+  <span>
+  奋战的又一个python程序-VYoudao</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2014/04/05/vmtools-install-problem.html"  title="vmtools 共享文件夹问题 ">
+ <strong>下一篇：</strong><br/> 
+ <span>vmtools 共享文件夹问题 
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+
+<section id="comments">
+  <div id="disqus_thread">
+	<noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#换博客的原因："><span class="toc-number">1.</span> <span class="toc-text">换博客的原因：</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#过程"><span class="toc-number">2.</span> <span class="toc-text">过程</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#结果"><span class="toc-number">3.</span> <span class="toc-text">结果</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+			<li><a href="/categories/C/C++/" title="C/C++">C/C++<sup>7</sup></a></li>
+		
+			<li><a href="/categories/OpenCV/" title="OpenCV">OpenCV<sup>2</sup></a></li>
+		
+			<li><a href="/categories/QT/" title="QT">QT<sup>2</sup></a></li>
+		
+			<li><a href="/categories/VSim/" title="VSim">VSim<sup>2</sup></a></li>
+		
+			<li><a href="/categories/algorithm/" title="algorithm">algorithm<sup>4</sup></a></li>
+		
+			<li><a href="/categories/git/" title="git">git<sup>1</sup></a></li>
+		
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>1</sup></a></li>
+		
+			<li><a href="/categories/java/" title="java">java<sup>5</sup></a></li>
+		
+			<li><a href="/categories/linux/" title="linux">linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/octopress/" title="octopress">octopress<sup>1</sup></a></li>
+		
+			<li><a href="/categories/ok6410/" title="ok6410">ok6410<sup>1</sup></a></li>
+		
+			<li><a href="/categories/opencv/" title="opencv">opencv<sup>1</sup></a></li>
+		
+			<li><a href="/categories/other/" title="other">other<sup>1</sup></a></li>
+		
+			<li><a href="/categories/python/" title="python">python<sup>3</sup></a></li>
+		
+			<li><a href="/categories/ruby/" title="ruby">ruby<sup>1</sup></a></li>
+		
+			<li><a href="/categories/ubuntu/" title="ubuntu">ubuntu<sup>1</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			<li><a href="/tags/C/C++/" title="C/C++">C/C++<sup>9</sup></a></li>
+		
+			<li><a href="/tags/HashMap/" title="HashMap">HashMap<sup>1</sup></a></li>
+		
+			<li><a href="/tags/OpenCV/" title="OpenCV">OpenCV<sup>2</sup></a></li>
+		
+			<li><a href="/tags/QT/" title="QT">QT<sup>3</sup></a></li>
+		
+			<li><a href="/tags/ToDo/" title="ToDo">ToDo<sup>1</sup></a></li>
+		
+			<li><a href="/tags/VCalculator/" title="VCalculator">VCalculator<sup>1</sup></a></li>
+		
+			<li><a href="/tags/VFeiQ/" title="VFeiQ">VFeiQ<sup>1</sup></a></li>
+		
+			<li><a href="/tags/VMatcher/" title="VMatcher">VMatcher<sup>1</sup></a></li>
+		
+			<li><a href="/tags/VS2012/" title="VS2012">VS2012<sup>1</sup></a></li>
+		
+			<li><a href="/tags/VSim/" title="VSim">VSim<sup>2</sup></a></li>
+		
+			<li><a href="/tags/algorithm/" title="algorithm">algorithm<sup>6</sup></a></li>
+		
+			<li><a href="/tags/centos/" title="centos">centos<sup>2</sup></a></li>
+		
+			<li><a href="/tags/debian/" title="debian">debian<sup>1</sup></a></li>
+		
+			<li><a href="/tags/diy/" title="diy">diy<sup>1</sup></a></li>
+		
+			<li><a href="/tags/emdebian/" title="emdebian">emdebian<sup>1</sup></a></li>
+		
+			<li><a href="/tags/git/" title="git">git<sup>1</sup></a></li>
+		
+			<li><a href="/tags/hash/" title="hash">hash<sup>2</sup></a></li>
+		
+			<li><a href="/tags/hexo/" title="hexo">hexo<sup>3</sup></a></li>
+		
+			<li><a href="/tags/java/" title="java">java<sup>6</sup></a></li>
+		
+			<li><a href="/tags/licenses/" title="licenses">licenses<sup>1</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello,I&#39;m VellBibi.  <br/>
+			I&#39;ll share my learning experience here.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/vell001" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/vellbibi" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/vell.bibi" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		
+		<a href="mailto:vell001@qq.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+		<p class="copyright">
+		
+		<a href="http://vview.ml/about" target="_blank" title="Vell Bibi">Vell Bibi</a>
+		  
+		2014
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ga('create', 'UA-49769037-1', 'vblog.vell001.ml');  
+ga('send', 'pageview');
+</script>
+
+
+<div id="totop">
+<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+</div>
+
+<script src="/js/totop.js"></script>
+
+<script type="text/x-mathjax-config"> 
+MathJax.Hub.Config({ 
+  tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]} 
+}); 
+</script>
+<script type="text/javascript"
+   src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<!-- disqus -->
+<script>
+  var disqus_shortname = 'vellblog';
+  
+  var disqus_url = 'http://vview.ml/2014/04/07/vblog_by_hexo.html';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//go.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<!-- cnzz -->
+
+<p class='cnzz'>
+<script type="text/javascript">
+	var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+	document.write(unescape("%3Cspan  id='cnzz_stat_icon_1000357028'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s22.cnzz.com/z_stat.php%3Fid%3D1000357028%26online%3D1%26show%3Dline' type='text/javascript'%3E%3C/script%3E"));
+</script>
+</p>
+
+  </body>
+</html>

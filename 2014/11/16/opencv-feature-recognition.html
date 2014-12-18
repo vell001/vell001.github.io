@@ -1,0 +1,759 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>opencv下特征识别VMatcher | VBlog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Vell Bibi">
+    
+    <meta name="description" content="前言
+之前玩了一下人脸识别，感觉opencv挺好用的。代码比较简单，因为很多都已经封装好了，而且大多数是以C代码的形式封装，也就是说都是一些函数，只要了解功能和参数就行了，就我这菜鸟花了估计不到半个小">
+    
+    
+	<meta name="keywords" content="
+		 OpenCV,  VMatcher, 
+		 OpenCV, 
+		vblog,vell001,vellbibi">
+	
+    
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="vellbibi" />
+    <meta name="twitter:title" content="opencv下特征识别VMatcher | VBlog" />
+      
+    
+    
+    <link rel="alternative" href="/atom.xml" title="VBlog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="VBlog" title="VBlog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="VBlog">VBlog</a></h1>
+				<h2 class="blog-motto">Welcome to vell001&#39;s world</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">首页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li><form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" maxlength="20" placeholder="Search" />
+						<input type="hidden" name="q" value="site:vview.ml">
+					</form></li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2014/11/16/opencv-feature-recognition.html" title="opencv下特征识别VMatcher" itemprop="url">opencv下特征识别VMatcher</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://vview.ml/about" title="Vell Bibi">Vell Bibi</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2014-11-16T09:08:28.000Z" itemprop="datePublished">发表于11月 16 2014</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#环境"><span class="toc-number">2.</span> <span class="toc-text">环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#特征识别过程简介"><span class="toc-number">3.</span> <span class="toc-text">特征识别过程简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#VMatcher"><span class="toc-number">4.</span> <span class="toc-text">VMatcher</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#识别效果展"><span class="toc-number">5.</span> <span class="toc-text">识别效果展</span></a></li><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#图片对图片的识别"><span class="toc-number">5.1.</span> <span class="toc-text">图片对图片的识别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#图片对视频的识别"><span class="toc-number">5.2.</span> <span class="toc-text">图片对视频的识别</span></a></li></ol>
+		
+		</div>
+		
+		<h2 id="前言">前言</h2>
+<p>之前玩了一下人脸识别，感觉opencv挺好用的。代码比较简单，因为很多都已经封装好了，而且大多数是以C代码的形式封装，也就是说都是一些函数，只要了解功能和参数就行了，就我这菜鸟花了估计不到半个小时就能自己写一个人脸识别了。可惜我涉及的一个项目里面人脸识别是用不到了，主要是建筑物识别。前天晚上自己训练了一个分类器，感觉训练得不好，识别率不咋样，可能是我的图片不够。今天下午试试特征识别，感觉还可以，而且找到了一个开源的封装类<a href="https://github.com/openplanets/scape/blob/master/pc-qa-matchbox/DPQAlib/RobustMatcher.cpp" target="_blank">RobustMatcher</a>,写得很好，用起来也很方便，为了学习也为了达到我的要求，我在这个代码的基础上修改了一些东西，有点不要脸的改了个名字，叫<a href="https://github.com/vell001/VMatcher" target="_blank">VMatcher</a></p>
+<h2 id="环境">环境</h2>
+<ul>
+<li>windows7 x64 </li>
+<li>vs2012</li>
+<li>opencv 2.4.8</li>
+</ul>
+<h2 id="特征识别过程简介">特征识别过程简介</h2>
+<ol>
+<li><p>先确定一下用哪个算法做特征识别，有三个类需要实例化，类的详细文档见：<a href="http://docs.opencv.org/modules/features2d/doc/features2d.html" target="_blank">docs.opencv.org</a> 特征识别的相关算法优缺点介绍：<a href="http://computer-vision-talks.com/articles/2011-01-04-comparison-of-the-opencv-feature-detection-algorithms/" target="_blank">computer-vision-talks</a></p>
+<ol>
+<li>detector: 检测对象，用于检测特征点；有十种检测方法：<ol>
+<li>“FAST” – FastFeatureDetector</li>
+<li>“STAR” – StarFeatureDetector</li>
+<li>“SIFT” – SIFT (nonfree module)</li>
+<li>“SURF” – SURF (nonfree module)</li>
+<li>“ORB” – ORB</li>
+<li>“MSER” – MSER</li>
+<li>“GFTT” – GoodFeaturesToTrackDetector</li>
+<li>“HARRIS” – GoodFeaturesToTrackDetector with Harris detector enabled</li>
+<li>“Dense” – DenseFeatureDetector</li>
+<li>“SimpleBlob” – SimpleBlobDetector<br>常用的有SIFT、SURF、ORB，我这都用的是ORB，我用着这个效果比较好</li>
+</ol>
+</li>
+<li>extractor: 提取对象，用于提取特征描述矩阵；具体类有：<ol>
+<li>SiftDescriptorExtractor</li>
+<li>SurfDescriptorExtractor</li>
+<li>CalonderDescriptorExtractor</li>
+<li>BriefDescriptorExtractor    </li>
+<li>OpponentColorDescriptorExtractor</li>
+</ol>
+</li>
+<li>matcher: 匹配对象，用于匹配两个描述矩阵；具体类有：<ol>
+<li>BruteForceMatcher</li>
+<li>FlannBasedMatcher<figure class="highlight cpp"><table><tr><td class="gutter"><pre>1
+2
+3
+</pre></td><td class="code"><pre>cv::Ptr&lt;cv::FeatureDetector&gt; detector = <span class="keyword">new</span> cv::OrbFeatureDetector(numKeyPoints);
+cv::Ptr&lt;cv::DescriptorExtractor&gt; extractor = <span class="keyword">new</span> cv::OrbDescriptorExtractor;
+cv::Ptr&lt;cv::DescriptorMatcher&gt; matcher = <span class="keyword">new</span>  cv::BruteForceMatcher&lt;cv::HammingLUT&gt;;
+</pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><p>获取图片</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+</pre></td><td class="code"><pre>cv::Mat img1;
+cv::Mat img2;
+img1 = cv::imread(<span class="string">"./images/1.jpg"</span>);
+img2 = cv::imread(<span class="string">"./images/2.jpg"</span>);
+</pre></td></tr></table></figure>
+</li>
+<li><p>检测特征点</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+</pre></td><td class="code"><pre><span class="built_in">std</span>::<span class="stl_container"><span class="built_in">vector</span>&lt;cv::KeyPoint&gt;</span> img1_keypoints;
+<span class="built_in">std</span>::<span class="stl_container"><span class="built_in">vector</span>&lt;cv::KeyPoint&gt;</span> img2_keypoints;
+detector-&gt;detect(img1,img1_keypoints);
+detector-&gt;detect(img2,img2_keypoints);
+</pre></td></tr></table></figure>
+</li>
+<li><p>计算特征描述矩阵</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre>1
+2
+3
+</pre></td><td class="code"><pre>cv::Mat descriptors1, descriptors2;
+extractor-&gt;compute(image1,keypoints1,descriptors1);
+extractor-&gt;compute(image2,keypoints2,descriptors2);
+</pre></td></tr></table></figure>
+</li>
+<li><p>匹配两个特征描述</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+</pre></td><td class="code"><pre><span class="built_in">std</span>::<span class="stl_container"><span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="stl_container"><span class="built_in">vector</span>&lt;cv::DMatch&gt;</span> &gt;</span> matches1;
+matcher-&gt;knnMatch(descriptors1,descriptors2,matches1,<span class="number">2</span>);
+<span class="built_in">std</span>::<span class="stl_container"><span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="stl_container"><span class="built_in">vector</span>&lt;cv::DMatch&gt;</span> &gt;</span> matches2;
+matcher-&gt;knnMatch(descriptors2,descriptors1,matches2,<span class="number">2</span>);
+</pre></td></tr></table></figure>
+</li>
+<li><p>剔除距离过大的特征点（由ratioTest实现）</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre>1
+2
+</pre></td><td class="code"><pre><span class="keyword">int</span> removed= ratioTest(matches1);
+	removed= ratioTest(matches2);
+</pre></td></tr></table></figure>
+</li>
+<li><p>剔除不匀称的特征点（由symmetryTest实现）</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre>1
+2
+</pre></td><td class="code"><pre><span class="built_in">std</span>::<span class="stl_container"><span class="built_in">vector</span>&lt;cv::DMatch&gt;</span> matches;
+symmetryTest(matches1,matches2,matches);
+</pre></td></tr></table></figure>
+</li>
+<li><p>如果要求非常精确，可以再加上RANSAC算法去剔除不符合的特征点（由ransacTest实现）</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre>1
+2
+</pre></td><td class="code"><pre><span class="built_in">std</span>::<span class="stl_container"><span class="built_in">vector</span>&lt;cv::DMatch&gt;</span> matches;
+cv::Mat fundemental= ransacTest(symMatches, keypoints1, keypoints2, matches);
+</pre></td></tr></table></figure>
+</li>
+<li><p>显示匹配点图片（由showImage实现）</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre>1
+</pre></td><td class="code"><pre>vMatcher.showImage(img1, img2, matches, img1_keypoints, img2_keypoints);
+</pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h2 id="VMatcher">VMatcher</h2>
+<p>根据RobustMatcher修改，封装好了以上所有操作，使用简单，代码见我的<a href="https://github.com/vell001/VMatcher" target="_blank">github</a>，上我的测试main函数</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+</pre></td><td class="code"><pre><span class="preprocessor">#include "VMatcher.h"</span>
+
+<span class="preprocessor">#define ImageTest <span class="comment">// VideoTest or ImageTest</span></span>
+
+<span class="keyword">int</span> main()
+{
+	<span class="comment">// set parameters</span>
+	<span class="keyword">int</span> numKeyPoints = <span class="number">2000</span>;
+
+	<span class="comment">//Instantiate robust matcher</span>
+	VMatcher vMatcher;
+
+	<span class="comment">//instantiate detector, extractor, matcher</span>
+	cv::Ptr&lt;cv::FeatureDetector&gt; detector = <span class="keyword">new</span> cv::OrbFeatureDetector(numKeyPoints);
+	cv::Ptr&lt;cv::DescriptorExtractor&gt; extractor = <span class="keyword">new</span> cv::OrbDescriptorExtractor;
+	cv::Ptr&lt;cv::DescriptorMatcher&gt; matcher = <span class="keyword">new</span> cv::BruteForceMatcher&lt;cv::HammingLUT&gt;;
+
+	vMatcher.setFeatureDetector(detector);
+	vMatcher.setDescriptorExtractor(extractor);
+	vMatcher.setDescriptorMatcher(matcher);
+
+<span class="preprocessor">#ifdef ImageTest</span>
+	<span class="comment">//Load input image detect keypoints</span>
+	cv::Mat img1;
+	<span class="built_in">std</span>::<span class="stl_container"><span class="built_in">vector</span>&lt;cv::KeyPoint&gt;</span> img1_keypoints;
+	cv::Mat img1_descriptors;
+	cv::Mat img2;
+	<span class="built_in">std</span>::<span class="stl_container"><span class="built_in">vector</span>&lt;cv::KeyPoint&gt;</span> img2_keypoints;
+	cv::Mat img2_descriptors;
+
+	<span class="built_in">std</span>::<span class="stl_container"><span class="built_in">vector</span>&lt;cv::DMatch&gt;</span>  matches;
+
+	img1 = cv::imread(<span class="string">"./images/1.jpg"</span>);
+	img2 = cv::imread(<span class="string">"./images/2.jpg"</span>);
+	
+	vMatcher.match(img1, img2, matches, img1_keypoints, img2_keypoints);
+	<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"matched number :"</span> &lt;&lt; matches.size() &lt;&lt; <span class="built_in">std</span>::endl;
+	vMatcher.showImage(img1, img2, matches, img1_keypoints, img2_keypoints);
+	cvWaitKey(<span class="number">0</span>);
+	system(<span class="string">"pause"</span>);
+<span class="preprocessor">#endif <span class="comment">// ImageTest</span></span>
+
+<span class="preprocessor">#ifdef VideoTest</span>
+	cv::Mat img1;
+	<span class="built_in">std</span>::<span class="stl_container"><span class="built_in">vector</span>&lt;cv::KeyPoint&gt;</span> img1_keypoints;
+	cv::Mat img1_descriptors;
+	img1 = cv::imread(<span class="string">"./images/1.jpg"</span>);
+	cv::VideoCapture Camera(<span class="number">0</span>);
+	<span class="keyword">if</span> (!Camera.isOpened())
+		<span class="keyword">return</span> -<span class="number">1</span>;
+	<span class="keyword">while</span> (cv::waitKey(<span class="number">33</span>) != <span class="number">27</span>) {
+		cv::Mat img2;
+		<span class="built_in">std</span>::<span class="stl_container"><span class="built_in">vector</span>&lt;cv::KeyPoint&gt;</span> img2_keypoints;
+		cv::Mat img2_descriptors;
+
+		<span class="built_in">std</span>::<span class="stl_container"><span class="built_in">vector</span>&lt;cv::DMatch&gt;</span>  matches;
+		
+		<span class="keyword">if</span> (!Camera.read(img2))
+			<span class="keyword">break</span>;
+		<span class="comment">//cv::imshow("video", img2);</span>
+
+		vMatcher.match(img1, img2, matches, img1_keypoints, img2_keypoints);
+		<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"matched number :"</span> &lt;&lt; matches.size() &lt;&lt; <span class="built_in">std</span>::endl;
+		vMatcher.showImage(img1, img2, matches, img1_keypoints, img2_keypoints);
+
+		system(<span class="string">"cls"</span>);
+	}
+	Camera.release();
+<span class="preprocessor">#endif <span class="comment">// VideoTest</span></span>
+
+}
+</pre></td></tr></table></figure>
+
+<h2 id="识别效果展">识别效果展</h2>
+<blockquote>
+<p>来个我的女神赫本的识别  </p>
+</blockquote>
+<h3 id="图片对图片的识别">图片对图片的识别</h3>
+<p><img src="/images/opencv/20141116193043.png" alt=""></p>
+<h3 id="图片对视频的识别">图片对视频的识别</h3>
+<p><img src="/images/opencv/20141116193820.png" alt=""></p>
+  
+		
+<p class="original_url">
+	原文地址: <a target="_blank" href="http://vview.ml/2014/11/16/opencv-feature-recognition.html">http://vview.ml/2014/11/16/opencv-feature-recognition.html</a></br>
+	written by <a target="_blank" href="http://vview.ml/about ">Vell Bibi</a> posted at <a target="_blank" href="http://vview.ml">VBlog</a>
+</p>
+
+	</div>
+		<footer class="article-footer clearfix">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/OpenCV/">OpenCV</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/VMatcher/">VMatcher</a><a href="/tags/OpenCV/">OpenCV</a>
+  </div>
+
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://vview.ml/2014/11/16/opencv-feature-recognition.html" data-title="opencv下特征识别VMatcher | VBlog" data-tsina="null" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2014/11/03/opencv-for-vs.html"  title="VS2012下配置OpenCV">
+ <strong>下一篇：</strong><br/> 
+ <span>VS2012下配置OpenCV
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+
+<section id="comments">
+  <div id="disqus_thread">
+	<noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#环境"><span class="toc-number">2.</span> <span class="toc-text">环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#特征识别过程简介"><span class="toc-number">3.</span> <span class="toc-text">特征识别过程简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#VMatcher"><span class="toc-number">4.</span> <span class="toc-text">VMatcher</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#识别效果展"><span class="toc-number">5.</span> <span class="toc-text">识别效果展</span></a></li><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#图片对图片的识别"><span class="toc-number">5.1.</span> <span class="toc-text">图片对图片的识别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#图片对视频的识别"><span class="toc-number">5.2.</span> <span class="toc-text">图片对视频的识别</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+			<li><a href="/categories/C/C++/" title="C/C++">C/C++<sup>7</sup></a></li>
+		
+			<li><a href="/categories/OpenCV/" title="OpenCV">OpenCV<sup>2</sup></a></li>
+		
+			<li><a href="/categories/QT/" title="QT">QT<sup>2</sup></a></li>
+		
+			<li><a href="/categories/VSim/" title="VSim">VSim<sup>2</sup></a></li>
+		
+			<li><a href="/categories/algorithm/" title="algorithm">algorithm<sup>4</sup></a></li>
+		
+			<li><a href="/categories/git/" title="git">git<sup>1</sup></a></li>
+		
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>1</sup></a></li>
+		
+			<li><a href="/categories/java/" title="java">java<sup>5</sup></a></li>
+		
+			<li><a href="/categories/linux/" title="linux">linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/octopress/" title="octopress">octopress<sup>1</sup></a></li>
+		
+			<li><a href="/categories/ok6410/" title="ok6410">ok6410<sup>1</sup></a></li>
+		
+			<li><a href="/categories/opencv/" title="opencv">opencv<sup>1</sup></a></li>
+		
+			<li><a href="/categories/other/" title="other">other<sup>1</sup></a></li>
+		
+			<li><a href="/categories/python/" title="python">python<sup>3</sup></a></li>
+		
+			<li><a href="/categories/ruby/" title="ruby">ruby<sup>1</sup></a></li>
+		
+			<li><a href="/categories/ubuntu/" title="ubuntu">ubuntu<sup>1</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			<li><a href="/tags/C/C++/" title="C/C++">C/C++<sup>9</sup></a></li>
+		
+			<li><a href="/tags/HashMap/" title="HashMap">HashMap<sup>1</sup></a></li>
+		
+			<li><a href="/tags/OpenCV/" title="OpenCV">OpenCV<sup>2</sup></a></li>
+		
+			<li><a href="/tags/QT/" title="QT">QT<sup>3</sup></a></li>
+		
+			<li><a href="/tags/ToDo/" title="ToDo">ToDo<sup>1</sup></a></li>
+		
+			<li><a href="/tags/VCalculator/" title="VCalculator">VCalculator<sup>1</sup></a></li>
+		
+			<li><a href="/tags/VFeiQ/" title="VFeiQ">VFeiQ<sup>1</sup></a></li>
+		
+			<li><a href="/tags/VMatcher/" title="VMatcher">VMatcher<sup>1</sup></a></li>
+		
+			<li><a href="/tags/VS2012/" title="VS2012">VS2012<sup>1</sup></a></li>
+		
+			<li><a href="/tags/VSim/" title="VSim">VSim<sup>2</sup></a></li>
+		
+			<li><a href="/tags/algorithm/" title="algorithm">algorithm<sup>6</sup></a></li>
+		
+			<li><a href="/tags/centos/" title="centos">centos<sup>2</sup></a></li>
+		
+			<li><a href="/tags/debian/" title="debian">debian<sup>1</sup></a></li>
+		
+			<li><a href="/tags/diy/" title="diy">diy<sup>1</sup></a></li>
+		
+			<li><a href="/tags/emdebian/" title="emdebian">emdebian<sup>1</sup></a></li>
+		
+			<li><a href="/tags/git/" title="git">git<sup>1</sup></a></li>
+		
+			<li><a href="/tags/hash/" title="hash">hash<sup>2</sup></a></li>
+		
+			<li><a href="/tags/hexo/" title="hexo">hexo<sup>3</sup></a></li>
+		
+			<li><a href="/tags/java/" title="java">java<sup>6</sup></a></li>
+		
+			<li><a href="/tags/licenses/" title="licenses">licenses<sup>1</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello,I&#39;m VellBibi.  <br/>
+			I&#39;ll share my learning experience here.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/vell001" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/vellbibi" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/vell.bibi" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		
+		<a href="mailto:vell001@qq.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+		<p class="copyright">
+		
+		<a href="http://vview.ml/about" target="_blank" title="Vell Bibi">Vell Bibi</a>
+		  
+		2014
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ga('create', 'UA-49769037-1', 'vblog.vell001.ml');  
+ga('send', 'pageview');
+</script>
+
+
+<div id="totop">
+<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+</div>
+
+<script src="/js/totop.js"></script>
+
+<script type="text/x-mathjax-config"> 
+MathJax.Hub.Config({ 
+  tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]} 
+}); 
+</script>
+<script type="text/javascript"
+   src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<!-- disqus -->
+<script>
+  var disqus_shortname = 'vellblog';
+  
+  var disqus_url = 'http://vview.ml/2014/11/16/opencv-feature-recognition.html';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//go.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<!-- cnzz -->
+
+<p class='cnzz'>
+<script type="text/javascript">
+	var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+	document.write(unescape("%3Cspan  id='cnzz_stat_icon_1000357028'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s22.cnzz.com/z_stat.php%3Fid%3D1000357028%26online%3D1%26show%3Dline' type='text/javascript'%3E%3C/script%3E"));
+</script>
+</p>
+
+  </body>
+</html>
