@@ -1,0 +1,538 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>求First和Follow集【编译原理】 | VBlog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="Vell Bibi">
+    
+    <meta name="description" content="前言
+最近开始做编译原理的课程设计，我被安排做一个First集和Follow集生成算法模拟软件。我都忘了什么是First和Follow集了，查了回资料开搞明白了First集，Follow集还挺复杂的。">
+    
+    
+	<meta name="keywords" content="
+		 C/C++, 
+		 C/C++, 
+		vblog,vell001,vellbibi">
+	
+    
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="vellbibi" />
+    <meta name="twitter:title" content="求First和Follow集【编译原理】 | VBlog" />
+      
+    
+    
+    <link rel="alternative" href="/atom.xml" title="VBlog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="VBlog" title="VBlog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="VBlog">VBlog</a></h1>
+				<h2 class="blog-motto">Welcome to vell001&#39;s world</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">首页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li><form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" autocomplete="off" maxlength="20" placeholder="Search" />
+						<input type="hidden" name="q" value="site:vell001.ml">
+					</form></li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2014/12/29/first-follow.html" title="求First和Follow集【编译原理】" itemprop="url">求First和Follow集【编译原理】</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://vell001.ml/about" title="Vell Bibi">Vell Bibi</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2014-12-29T13:41:52.000Z" itemprop="datePublished">发表于12月 29 2014</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#老师要求题目"><span class="toc-number">2.</span> <span class="toc-text">老师要求题目</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#环境"><span class="toc-number">3.</span> <span class="toc-text">环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#大体功能简介"><span class="toc-number">4.</span> <span class="toc-text">大体功能简介</span></a></li><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#主界面"><span class="toc-number">4.1.</span> <span class="toc-text">主界面</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#编辑器"><span class="toc-number">4.2.</span> <span class="toc-text">编辑器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#First求解过程"><span class="toc-number">4.3.</span> <span class="toc-text">First求解过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Follow求解过程"><span class="toc-number">4.4.</span> <span class="toc-text">Follow求解过程</span></a></li></ol><li class="toc-item toc-level-2"><a class="toc-link" href="#界面展示"><span class="toc-number">5.</span> <span class="toc-text">界面展示</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#源代码"><span class="toc-number">6.</span> <span class="toc-text">源代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#后语"><span class="toc-number">7.</span> <span class="toc-text">后语</span></a></li></ol>
+		
+		</div>
+		
+		<h2 id="前言">前言</h2>
+<p>最近开始做编译原理的课程设计，我被安排做一个First集和Follow集生成算法模拟软件。我都忘了什么是First和Follow集了，查了回资料开搞明白了First集，Follow集还挺复杂的。<br>我之前一直有做一个带代码高亮的编辑器的，这次逮到机会了，虽然老师要求没有那么复杂，可是自己还是想来个小挑战（实现最简单的识别文法）。于是决定用Qt去写。</p>
+<h2 id="老师要求题目">老师要求题目</h2>
+<p>模拟算法的基本功能实现：</p>
+<ol>
+<li>输入一个文法G； </li>
+<li>输出由文法G构造的FIRST集合； </li>
+<li>输出由文法G构造的FOLLOW集合； </li>
+<li>构造预测分析表，并判断该文法是否为LL(1)文法。（选作）</li>
+</ol>
+<h2 id="环境">环境</h2>
+<ul>
+<li>windows7 x64 </li>
+<li>Qt 5.3.1</li>
+</ul>
+<h2 id="大体功能简介">大体功能简介</h2>
+<h3 id="主界面">主界面</h3>
+<ol>
+<li>可以选择从文本读取文法，也可自行输入</li>
+<li>文本读取后会跳到编辑器解析</li>
+</ol>
+<h3 id="编辑器">编辑器</h3>
+<ol>
+<li>使用正则表达式解析文档每行字符串里符合标准的文法句子，如果匹配错误给出出错信息，以及行号，同时界面高亮错误位置</li>
+<li>匹配成功后根据对应的终结符或非终结符高亮字符，同时整理代码格式</li>
+<li>可以保存到文本，在退出时自动保存到之前保存的文本</li>
+</ol>
+<h3 id="First求解过程">First求解过程</h3>
+<ol>
+<li>直接收取：对形如”U-&gt;a…”的产生式（其中a是终结符），把a收入到First(U)中</li>
+<li>反复传送：对形入”U-&gt;P…”的产生式（其中P是非终结符），应把First(P)中的全部内容传送到First(U)中（递归实现）</li>
+</ol>
+<h3 id="Follow求解过程">Follow求解过程</h3>
+<ol>
+<li>设S为文法的开始符号，将加入Follow(U)中</li>
+<li>反复传送：对形如U-&gt;…P的产生式（其中P是非终结符），应把Follow(U)中的全部内容传送到Follow(P)中。</li>
+</ol>
+<h2 id="界面展示">界面展示</h2>
+<ul>
+<li>代码文件展<br><img src="/images/first_follow/20141229212345.png" alt=""><br><img src="/images/first_follow/20141229214009.png" alt=""></li>
+<li>主界面<br><img src="/images/first_follow/20141229212205.png" alt=""></li>
+<li>编辑器<br><img src="/images/first_follow/20141229212243.png" alt=""><br><img src="/images/first_follow/20141229215442.png" alt=""></li>
+<li>First&amp;Follow显示<br><img src="/images/first_follow/20141229221556.png" alt=""><br><img src="/images/first_follow/20141229221623.png" alt=""></li>
+</ul>
+<h2 id="源代码">源代码</h2>
+<p>开源地址：<a href="https://github.com/vell001/FirstFollow" target="_blank">点我去vell001的Github</a></p>
+<h2 id="后语">后语</h2>
+<blockquote>
+<p>这个代码写得不是很好，特别是Follow集求解那块，由于自己对Follow集的理解不是很深，总感觉写得有问题，不过到目前我的测试数据都是正确的。今天貌似有点发烧，就先这样了，头疼~</p>
+</blockquote>
+  
+		
+<p class="original_url">
+	原文地址: <a target="_blank" href="http://vell001.ml/2014/12/29/first-follow.html">http://vell001.ml/2014/12/29/first-follow.html</a></br>
+	written by <a target="_blank" href="http://vell001.ml/about ">Vell Bibi</a> posted at <a target="_blank" href="http://vell001.ml">VBlog</a>
+</p>
+
+	</div>
+		<footer class="article-footer clearfix">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/C/C++/">C/C++</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/C/C++/">C/C++</a>
+  </div>
+
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://vell001.ml/2014/12/29/first-follow.html" data-title="求First和Follow集【编译原理】 | VBlog" data-tsina="null" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2014/11/16/opencv-feature-recognition.html"  title="opencv下特征识别VMatcher">
+ <strong>下一篇：</strong><br/> 
+ <span>opencv下特征识别VMatcher
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+
+<section id="comments">
+  <div id="disqus_thread">
+	<noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#老师要求题目"><span class="toc-number">2.</span> <span class="toc-text">老师要求题目</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#环境"><span class="toc-number">3.</span> <span class="toc-text">环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#大体功能简介"><span class="toc-number">4.</span> <span class="toc-text">大体功能简介</span></a></li><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#主界面"><span class="toc-number">4.1.</span> <span class="toc-text">主界面</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#编辑器"><span class="toc-number">4.2.</span> <span class="toc-text">编辑器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#First求解过程"><span class="toc-number">4.3.</span> <span class="toc-text">First求解过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Follow求解过程"><span class="toc-number">4.4.</span> <span class="toc-text">Follow求解过程</span></a></li></ol><li class="toc-item toc-level-2"><a class="toc-link" href="#界面展示"><span class="toc-number">5.</span> <span class="toc-text">界面展示</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#源代码"><span class="toc-number">6.</span> <span class="toc-text">源代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#后语"><span class="toc-number">7.</span> <span class="toc-text">后语</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+			<li><a href="/categories/C/C++/" title="C/C++">C/C++<sup>8</sup></a></li>
+		
+			<li><a href="/categories/OpenCV/" title="OpenCV">OpenCV<sup>2</sup></a></li>
+		
+			<li><a href="/categories/QT/" title="QT">QT<sup>2</sup></a></li>
+		
+			<li><a href="/categories/VSim/" title="VSim">VSim<sup>2</sup></a></li>
+		
+			<li><a href="/categories/algorithm/" title="algorithm">algorithm<sup>4</sup></a></li>
+		
+			<li><a href="/categories/git/" title="git">git<sup>1</sup></a></li>
+		
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>1</sup></a></li>
+		
+			<li><a href="/categories/java/" title="java">java<sup>5</sup></a></li>
+		
+			<li><a href="/categories/linux/" title="linux">linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/octopress/" title="octopress">octopress<sup>1</sup></a></li>
+		
+			<li><a href="/categories/ok6410/" title="ok6410">ok6410<sup>1</sup></a></li>
+		
+			<li><a href="/categories/opencv/" title="opencv">opencv<sup>1</sup></a></li>
+		
+			<li><a href="/categories/other/" title="other">other<sup>1</sup></a></li>
+		
+			<li><a href="/categories/python/" title="python">python<sup>3</sup></a></li>
+		
+			<li><a href="/categories/ruby/" title="ruby">ruby<sup>1</sup></a></li>
+		
+			<li><a href="/categories/ubuntu/" title="ubuntu">ubuntu<sup>1</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			<li><a href="/tags/C/C++/" title="C/C++">C/C++<sup>10</sup></a></li>
+		
+			<li><a href="/tags/HashMap/" title="HashMap">HashMap<sup>1</sup></a></li>
+		
+			<li><a href="/tags/OpenCV/" title="OpenCV">OpenCV<sup>2</sup></a></li>
+		
+			<li><a href="/tags/QT/" title="QT">QT<sup>3</sup></a></li>
+		
+			<li><a href="/tags/ToDo/" title="ToDo">ToDo<sup>1</sup></a></li>
+		
+			<li><a href="/tags/VCalculator/" title="VCalculator">VCalculator<sup>1</sup></a></li>
+		
+			<li><a href="/tags/VFeiQ/" title="VFeiQ">VFeiQ<sup>1</sup></a></li>
+		
+			<li><a href="/tags/VMatcher/" title="VMatcher">VMatcher<sup>1</sup></a></li>
+		
+			<li><a href="/tags/VS2012/" title="VS2012">VS2012<sup>1</sup></a></li>
+		
+			<li><a href="/tags/VSim/" title="VSim">VSim<sup>2</sup></a></li>
+		
+			<li><a href="/tags/algorithm/" title="algorithm">algorithm<sup>6</sup></a></li>
+		
+			<li><a href="/tags/centos/" title="centos">centos<sup>2</sup></a></li>
+		
+			<li><a href="/tags/debian/" title="debian">debian<sup>1</sup></a></li>
+		
+			<li><a href="/tags/diy/" title="diy">diy<sup>1</sup></a></li>
+		
+			<li><a href="/tags/emdebian/" title="emdebian">emdebian<sup>1</sup></a></li>
+		
+			<li><a href="/tags/git/" title="git">git<sup>1</sup></a></li>
+		
+			<li><a href="/tags/hash/" title="hash">hash<sup>2</sup></a></li>
+		
+			<li><a href="/tags/hexo/" title="hexo">hexo<sup>3</sup></a></li>
+		
+			<li><a href="/tags/java/" title="java">java<sup>6</sup></a></li>
+		
+			<li><a href="/tags/licenses/" title="licenses">licenses<sup>1</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello,I&#39;m VellBibi.  <br/>
+			I&#39;ll share my learning experience here.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/vell001" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		<a href="https://twitter.com/vellbibi" target="_blank" class="icon-twitter" title="twitter"></a>
+		
+		
+		<a href="https://www.facebook.com/vell.bibi" target="_blank" class="icon-facebook" title="facebook"></a>
+		
+		
+		
+		<a href="mailto:vell001@qq.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+		<p class="copyright">
+		
+		<a href="http://vell001.ml/about" target="_blank" title="Vell Bibi">Vell Bibi</a>
+		  
+		2014
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ga('create', 'UA-49769037-1', 'vblog.vell001.ml');  
+ga('send', 'pageview');
+</script>
+
+
+<div id="totop">
+<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+</div>
+
+<script src="/js/totop.js"></script>
+
+<script type="text/x-mathjax-config"> 
+MathJax.Hub.Config({ 
+  tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]} 
+}); 
+</script>
+<script type="text/javascript"
+   src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<!-- disqus -->
+<script>
+  var disqus_shortname = 'vellblog';
+  
+  var disqus_url = 'http://vell001.ml/2014/12/29/first-follow.html';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//go.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<!-- cnzz -->
+
+<p class='cnzz'>
+<script type="text/javascript">
+	var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+	document.write(unescape("%3Cspan  id='cnzz_stat_icon_1000357028'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s22.cnzz.com/z_stat.php%3Fid%3D1000357028%26online%3D1%26show%3Dline' type='text/javascript'%3E%3C/script%3E"));
+</script>
+</p>
+
+  </body>
+</html>
