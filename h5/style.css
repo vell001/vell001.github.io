@@ -1,0 +1,83 @@
+@media (min-device-width : 375px) and (max-device-width : 667px) and (-webkit-min-device-pixel-ratio : 2){
+	/*iphone 6*/
+	*{
+		padding: 0;
+		margin: 0;
+		border: 0;
+	}
+	.play-bg-music{
+		position: fixed;
+		top: 0;
+		right: 0;
+		width: 50px;
+		height: 50px;
+		border-radius: 100%;
+		display: inline-block;
+		background: url(./music.png) 0 0 no-repeat ;
+		background-size: cover;
+		/*background: red;*/
+		z-index: 999;
+	}
+	.section{
+		height: 667px;
+		color: #fff;
+		text-align: center;
+	}
+	.section1, .section2, .section3, .section4, .section5, .section6 {
+		height: 100%;
+		background-size: cover;
+		font-family: Microsoft YaHei;
+	}
+	.section1{
+		background: url(bg1.jpg) 0 0 no-repeat;
+		background-size: 100%;
+	}
+	.section .title{
+		text-align: center;
+		padding-top: 500px;
+	}
+	.section .about{
+		margin-top: 20px;
+		text-align: center;
+	}
+
+	.section2{
+		background: url(bg2.jpg) 0 0 no-repeat;
+	}
+
+	.section3{
+		background: url(bg9.jpg) 0 0 no-repeat;
+	}
+
+	.section4{
+		background: url(bg8.jpg) 0 0 no-repeat;
+	}
+
+	.section5{
+		background: url(bg5.jpg) 0 0 no-repeat;
+	}
+
+	.section6{
+		background: url(bg6.jpg) 0 0 no-repeat;
+	}
+	.section2 h3{
+		padding-top: 10px;
+	}
+	.word {
+		/*margin-top: 20px;*/
+		padding-top: 20px;
+	}
+	.image{
+		margin: 20px auto;
+	}
+	.word p{
+		line-height: 25px;
+		font-size: 16px;
+		margin: 10px 0;
+	}
+	.footer{
+		text-align: center;
+		color: #333;
+		font-family: Arial;
+	}
+}
