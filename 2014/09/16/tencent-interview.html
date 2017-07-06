@@ -1,0 +1,751 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="C/C++,tencent," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="VBlog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="前言今天参加了腾讯校园招聘的面试（一面），开始感觉还不错，面试官是个年轻帅气的小伙，稍微小紧张，再聊完跟项目相关的知识（如：SQL注入问题、正则表达式、过滤器等）后，面试官给我抽了一道写程序的题；写代码的时候就真正紧张了，因为题是一个多叉树循环先根遍历的，话说我还没有用循环写过对树的遍历呢，更不用说多叉树了！写了我估计有半个小时，因为开始没听明白他的意思：”循环实现”，我先写了一个递归实现的，他给">
+<meta property="og:type" content="article">
+<meta property="og:title" content="腾讯一面程序题回顾">
+<meta property="og:url" content="http://vell001.ml/2014/09/16/tencent-interview.html">
+<meta property="og:site_name" content="VBlog">
+<meta property="og:description" content="前言今天参加了腾讯校园招聘的面试（一面），开始感觉还不错，面试官是个年轻帅气的小伙，稍微小紧张，再聊完跟项目相关的知识（如：SQL注入问题、正则表达式、过滤器等）后，面试官给我抽了一道写程序的题；写代码的时候就真正紧张了，因为题是一个多叉树循环先根遍历的，话说我还没有用循环写过对树的遍历呢，更不用说多叉树了！写了我估计有半个小时，因为开始没听明白他的意思：”循环实现”，我先写了一个递归实现的，他给">
+<meta property="og:updated_time" content="2014-09-16T14:05:20.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="腾讯一面程序题回顾">
+<meta name="twitter:description" content="前言今天参加了腾讯校园招聘的面试（一面），开始感觉还不错，面试官是个年轻帅气的小伙，稍微小紧张，再聊完跟项目相关的知识（如：SQL注入问题、正则表达式、过滤器等）后，面试官给我抽了一道写程序的题；写代码的时候就真正紧张了，因为题是一个多叉树循环先根遍历的，话说我还没有用循环写过对树的遍历呢，更不用说多叉树了！写了我估计有半个小时，因为开始没听明白他的意思：”循环实现”，我先写了一个递归实现的，他给">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://vell001.ml/2014/09/16/tencent-interview.html"/>
+
+
+
+
+
+  <title>腾讯一面程序题回顾 | VBlog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">VBlog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Welcome to vell001's world</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://vell001.ml/2014/09/16/tencent-interview.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Vell Bibi">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="VBlog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">腾讯一面程序题回顾</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-09-16T22:05:17+08:00">
+                Sep 16 2014
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C-C/" itemprop="url" rel="index">
+                    <span itemprop="name">C/C++</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天参加了腾讯校园招聘的面试（一面），开始感觉还不错，面试官是个年轻帅气的小伙，稍微小紧张，再聊完跟项目相关的知识（如：SQL注入问题、正则表达式、过滤器等）后，面试官给我抽了一道写程序的题；写代码的时候就真正紧张了，因为题是一个多叉树循环先根遍历的，话说我还没有用循环写过对树的遍历呢，更不用说多叉树了！写了我估计有半个小时，因为开始没听明白他的意思：”循环实现”，我先写了一个递归实现的，他给挑了几个毛病，把我思绪打乱了，后来画图说明白了整个递归遍历过程后让我看了下他的答案的函数定义，我记得大概是这个样子的：<code>Node *next(Node *node)</code>，说递归没有办法在遍历过程中返回每个节点的指针，坚持让我写一个循环的实现，我硬着头皮在纸上又画了一个图去理理思路，每写了一点代码就给他说一遍思绪，大概3-4次后写得差不多了，可是还有两个重大问题没有解决：1. 函数退出条件；2. 遍历兄弟结点条件（这样说有点抽象，等会上代码），后来就让我回去再想想了，整个技术部分的考察也就算是结束了，聊了点生活方面的面试就结束了。回到宿舍休息了下，就准备好好想一下它的实现，后来发现问题很大啊！先上题目</p>
+<h2 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">struct Node&#123;</div><div class="line">    int value;</div><div class="line">    struct Node *parentNode;</div><div class="line">    struct Node *brotherNode;</div><div class="line">    struct Node *childNode;</div><div class="line">&#125;</div><div class="line">```  </div><div class="line">&gt; 一颗多叉树，给定上面的结点，写一个先根遍历函数`next`，可以在循环里面调用`next`进行整个树的遍历  </div><div class="line"></div><div class="line">突然发现我在面试的时候写的第一个递归遍历实现的代码是对的！！！完全没有任何错误啊~~~结果被面试官忽悠!~（哎，其实怪我没有抵住面试官的问题啊！），后来还给改错了，⊙﹏⊙b汗！！！，我当时的代码就差不多是这个样子的：</div></pre></td></tr></table></figure>
+<p>void recursion(Node *node){<br>    if(node == NULL) return;</p>
+<pre><code>cout &lt;&lt; node-&gt;value &lt;&lt; &quot; &quot;;
+
+recursion(node-&gt;childNode);
+recursion(node-&gt;brotherNode);
+</code></pre><p>}<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">回宿舍画了一个差不多包含了全部情况的多叉树的图：  </div><div class="line">![](/images/tencent_interview/20140916224931.png)</div><div class="line">&gt; 正确的先根遍历应该是：`1 2 4 7 8 9 10 11 5 6 3`</div><div class="line"></div><div class="line">用循环去实现遍历，先写一个`next`函数，写这个函数时非常纠结，记得面试时大概是这样子写的</div></pre></td></tr></table></figure></p>
+<p>Node <em>next(Node </em>node){<br>    if(node == NULL) return NULL;<br>    if(node-&gt;childNode != NULL)<br>        return node-&gt;childNode;<br>    else if(node-&gt;brotherNode != NULL)<br>        return node-&gt;brotherNode;<br>    else if(node-&gt;parentNode != NULL)<br>        return next(node-&gt;parentNode-&gt;brotherNode); // 这个退出问题很严重啊<br>}</p>
+<p>Node *node = tree;<br>while(node != NULL){<br>    cout &lt;&lt; node-&gt;value &lt;&lt; “ “;<br>    node = next(node);<br>}<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">&gt; 这个代码存在不严谨的退出问题，遍历结果是：`1 2 4 7 8 9 10 11`，丢失了`5 6 3`这三个数，也就遇见兄弟结点为空的时候就退出了，没有再继续去找父亲结点了，为了解决这个问题，我还没有想到特别好的方法，就是想到了一个能解决的方法，不过感觉上还是觉得代码不够好，上修改后的`next`代码：</div></pre></td></tr></table></figure></p>
+<p>Node <em>next(Node </em>node, int flag=0){<br>    if(flag != 0){<br>        if(node-&gt;brotherNode != NULL)<br>            return node-&gt;brotherNode;<br>        else if(node-&gt;parentNode != NULL)<br>            return next(node-&gt;parentNode, 1);<br>        else<br>            return NULL;<br>    }<br>    if(node-&gt;childNode != NULL)<br>        return node-&gt;childNode;<br>    else if(node-&gt;brotherNode != NULL)<br>        return node-&gt;brotherNode;<br>    else if(node-&gt;parentNode != NULL)<br>        return next(node-&gt;parentNode, 1);<br>}<br>```</p>
+<blockquote>
+<p>我加入了一个<code>flag</code>参数，用来判断当前结点的<code>childNode</code>是否被遍历过了，<code>flag</code>默认是<strong> 0 </strong>，如果传入为非零就代表<code>node</code>的<code>childNode</code>被遍历过了，直接去遍历<code>brotherNode</code>，如果没有<code>brotherNode</code>就继续往上，也就是说<code>node</code>的<code>parentNode</code>的<code>childNode</code>全部遍历完了~~~（有点绕，其实也就是一个递归的过程）<br>谁想到了更好的实现方法请第一时间告诉我啊！！！我的邮箱：<a href="mailto:vell001@qq.com" target="_blank" rel="external">vell001@qq.com</a></p>
+</blockquote>
+<h2 id="结束语"><a href="#结束语" class="headerlink" title="结束语"></a>结束语</h2><p>在等腾讯的二面通知呀~很着急啊，不知道情况咋样呀！要是过了的话就继续分享一些我的经历吧，没过就当纪念了。。。先要感谢杨哥从大三找实习就一直在帮助我，给我提了很多笔试面试的技巧；再要感谢宣哥帮我内推到腾讯，给我说了很多腾讯相关的东西，让我更了解腾讯，也更了解工作；感谢所有在默默帮助我找工作的朋友~真心说声<strong>“谢谢”</strong>了~</p>
+<h2 id="附加"><a href="#附加" class="headerlink" title="附加"></a>附加</h2><p>我回宿舍做的全部代码：  </p>
+<figure class="highlight cpp"><figcaption><span>multiwayTree.cpp</span><a href="/_codes/tencent_interview/multiwayTree.cpp">view raw</a></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;windows.h&gt;</span></span></div><div class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</div><div class="line"></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> Node{</div><div class="line">    <span class="keyword">int</span> value;</div><div class="line">    <span class="keyword">struct</span> Node *parentNode;</div><div class="line">    <span class="keyword">struct</span> Node *brotherNode;</div><div class="line">    <span class="keyword">struct</span> Node *childNode;</div><div class="line">}Node, *Tree;</div><div class="line"></div><div class="line"><span class="function">Tree <span class="title">createTree</span><span class="params">()</span></span>{</div><div class="line">    Tree tree;</div><div class="line">    Node *node, *cup, *bro;</div><div class="line">    tree = (Node *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Node));</div><div class="line">    node = tree;</div><div class="line">    cup = tree; <span class="comment">// 1</span></div><div class="line">    </div><div class="line">    node-&gt;parentNode = <span class="literal">NULL</span>;</div><div class="line">    node-&gt;brotherNode = <span class="literal">NULL</span>;</div><div class="line">    node-&gt;childNode = (Node *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Node));</div><div class="line">    node-&gt;value = <span class="number">1</span>;</div><div class="line">    </div><div class="line">    node = node-&gt;childNode;</div><div class="line">    </div><div class="line">    node-&gt;parentNode = tree;</div><div class="line">    node-&gt;brotherNode = (Node *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Node));</div><div class="line">    node-&gt;childNode = (Node *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Node));</div><div class="line">    node-&gt;value = <span class="number">2</span>;</div><div class="line">    </div><div class="line">    cup = node; <span class="comment">// 2</span></div><div class="line">    node = node-&gt;brotherNode;</div><div class="line">    </div><div class="line">    node-&gt;parentNode = tree;</div><div class="line">    node-&gt;brotherNode = <span class="literal">NULL</span>;</div><div class="line">    node-&gt;childNode = <span class="literal">NULL</span>;</div><div class="line">    node-&gt;value = <span class="number">3</span>;</div><div class="line">    </div><div class="line">    node = cup-&gt;childNode;</div><div class="line">    </div><div class="line">    node-&gt;parentNode = cup;</div><div class="line">    node-&gt;brotherNode = (Node *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Node));</div><div class="line">    node-&gt;childNode = (Node *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Node));</div><div class="line">    node-&gt;value = <span class="number">4</span>;</div><div class="line">    </div><div class="line">    node = node-&gt;brotherNode;</div><div class="line">    </div><div class="line">    node-&gt;parentNode = cup;</div><div class="line">    node-&gt;brotherNode = (Node *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Node));</div><div class="line">    node-&gt;childNode = <span class="literal">NULL</span>;</div><div class="line">    node-&gt;value = <span class="number">5</span>;</div><div class="line">    </div><div class="line">    node = node-&gt;brotherNode; </div><div class="line">    </div><div class="line">    node-&gt;parentNode = cup;</div><div class="line">    node-&gt;brotherNode = <span class="literal">NULL</span>;</div><div class="line">    node-&gt;childNode = <span class="literal">NULL</span>;</div><div class="line">    node-&gt;value = <span class="number">6</span>;</div><div class="line">    </div><div class="line">    cup = cup-&gt;childNode; <span class="comment">// 4</span></div><div class="line">    node = cup-&gt;childNode;</div><div class="line">    </div><div class="line">    node-&gt;parentNode = cup;</div><div class="line">    node-&gt;brotherNode = <span class="literal">NULL</span>;</div><div class="line">    node-&gt;childNode = (Node *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Node));</div><div class="line">    node-&gt;value = <span class="number">7</span>;</div><div class="line">    </div><div class="line">    cup = cup-&gt;childNode; <span class="comment">// 7</span></div><div class="line">    node = cup-&gt;childNode;</div><div class="line">    </div><div class="line">    node-&gt;parentNode = cup;</div><div class="line">    node-&gt;brotherNode = (Node *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Node));</div><div class="line">    node-&gt;childNode = <span class="literal">NULL</span>;</div><div class="line">    node-&gt;value = <span class="number">8</span>;</div><div class="line">    </div><div class="line">    node = node-&gt;brotherNode;</div><div class="line">    </div><div class="line">    node-&gt;parentNode = cup;</div><div class="line">    node-&gt;brotherNode = <span class="literal">NULL</span>;</div><div class="line">    node-&gt;childNode = (Node *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Node));</div><div class="line">    node-&gt;value = <span class="number">9</span>;</div><div class="line">    </div><div class="line">    cup = node; <span class="comment">// 9</span></div><div class="line">    node = cup-&gt;childNode;</div><div class="line">    </div><div class="line">    node-&gt;parentNode = cup;</div><div class="line">    node-&gt;brotherNode = <span class="literal">NULL</span>;</div><div class="line">    node-&gt;childNode = (Node *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Node));</div><div class="line">    node-&gt;value = <span class="number">10</span>;</div><div class="line">    </div><div class="line">    cup = cup-&gt;childNode; <span class="comment">// 10</span></div><div class="line">    node = cup-&gt;childNode;</div><div class="line">    </div><div class="line">    node-&gt;parentNode = cup;</div><div class="line">    node-&gt;brotherNode = <span class="literal">NULL</span>;</div><div class="line">    node-&gt;childNode = <span class="literal">NULL</span>;</div><div class="line">    node-&gt;value = <span class="number">11</span>;</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> tree;</div><div class="line">}</div><div class="line"></div><div class="line"><span class="function">Node *<span class="title">next</span><span class="params">(Node *node, <span class="keyword">int</span> flag=<span class="number">0</span>)</span></span>{ <span class="comment">//flag用判断当前结点的`childNode`是否被遍历过了</span></div><div class="line">    <span class="keyword">if</span>(flag != <span class="number">0</span>){</div><div class="line">        <span class="keyword">if</span>(node-&gt;brotherNode != <span class="literal">NULL</span>)</div><div class="line">            <span class="keyword">return</span> node-&gt;brotherNode;</div><div class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(node-&gt;parentNode != <span class="literal">NULL</span>)</div><div class="line">            <span class="keyword">return</span> next(node-&gt;parentNode, <span class="number">1</span>);</div><div class="line">        <span class="keyword">else</span> </div><div class="line">            <span class="keyword">return</span> <span class="literal">NULL</span>;</div><div class="line">    }</div><div class="line">    <span class="keyword">if</span>(node-&gt;childNode != <span class="literal">NULL</span>)</div><div class="line">        <span class="keyword">return</span> node-&gt;childNode;</div><div class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(node-&gt;brotherNode != <span class="literal">NULL</span>)</div><div class="line">        <span class="keyword">return</span> node-&gt;brotherNode;</div><div class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(node-&gt;parentNode != <span class="literal">NULL</span>)</div><div class="line">        <span class="keyword">return</span> next(node-&gt;parentNode, <span class="number">1</span>);</div><div class="line">}</div><div class="line"><span class="comment">/*</span></div><div class="line">Node *next(Node *node){</div><div class="line">	if(node == NULL) return NULL;</div><div class="line">    if(node-&gt;childNode != NULL)</div><div class="line">        return node-&gt;childNode;</div><div class="line">    else if(node-&gt;brotherNode != NULL)</div><div class="line">        return node-&gt;brotherNode;</div><div class="line">    else if(node-&gt;parentNode != NULL)</div><div class="line">        return next(node-&gt;parentNode-&gt;brotherNode); // 这个退出问题很严重啊</div><div class="line">}</div><div class="line">*/</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">recursion</span><span class="params">(Node *node)</span></span>{</div><div class="line">    <span class="keyword">if</span>(node == <span class="literal">NULL</span>) <span class="keyword">return</span>;</div><div class="line">    </div><div class="line">    <span class="built_in">cout</span> &lt;&lt; node-&gt;value &lt;&lt; <span class="string">" "</span>;</div><div class="line">    </div><div class="line">    recursion(node-&gt;childNode);</div><div class="line">    recursion(node-&gt;brotherNode);</div><div class="line">}</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>{</div><div class="line"></div><div class="line">    Tree tree = createTree();</div><div class="line"></div><div class="line">    recursion(tree);</div><div class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="built_in">endl</span>;</div><div class="line"></div><div class="line">    Node *node = tree;</div><div class="line">    <span class="keyword">while</span>(node != <span class="literal">NULL</span>){</div><div class="line">        <span class="built_in">cout</span> &lt;&lt; node-&gt;value &lt;&lt; <span class="string">" "</span>;</div><div class="line">        node = next(node);</div><div class="line">    }</div><div class="line">    </div><div class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="built_in">endl</span>;</div><div class="line"></div><div class="line">    system(<span class="string">"pause"</span>);</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/C-C/" rel="tag"># C/C++</a>
+          
+            <a href="/tags/tencent/" rel="tag"># tencent</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/09/09/cpp-template.html" rel="next" title="C++ template模板要点">
+                <i class="fa fa-chevron-left"></i> C++ template模板要点
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/09/30/linux-back-to-email.html" rel="prev" title="linux服务器备份到邮箱">
+                linux服务器备份到邮箱 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="Vell Bibi" />
+          <p class="site-author-name" itemprop="name">Vell Bibi</p>
+           
+              <p class="site-description motion-element" itemprop="description">Share something I know</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">43</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-name">分类</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">43</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#题目"><span class="nav-number">2.</span> <span class="nav-text">题目</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结束语"><span class="nav-number">3.</span> <span class="nav-text">结束语</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#附加"><span class="nav-number">4.</span> <span class="nav-text">附加</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Vell Bibi</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

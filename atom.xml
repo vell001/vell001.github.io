@@ -1,0 +1,1241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>VBlog</title>
+  <subtitle>Welcome to vell001&#39;s world</subtitle>
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://vell001.ml/"/>
+  <updated>2017-01-04T14:49:00.000Z</updated>
+  <id>http://vell001.ml/</id>
+  
+  <author>
+    <name>Vell Bibi</name>
+    <email>vell001@qq.com</email>
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Android WebView注入js方式总结</title>
+    <link href="http://vell001.ml/2017/01/04/android-webview-inject-js.html"/>
+    <id>http://vell001.ml/2017/01/04/android-webview-inject-js.html</id>
+    <published>2017-01-04T14:49:00.000Z</published>
+    <updated>2017-01-04T14:49:00.000Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="Android-WebView注入js方式总结"><a href="#Android-WebView注入js方式总结" class="headerlink" title="Android WebView注入js方式总结"></a>Android WebView注入js方式总结</h1><h2 id="第一种"><a href="#第一种" class="headerlink" title="第一种"></a>第一种</h2><p>通过webview.loadUrl(“javascript:”)注入，如：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">webview.loadUrl(<span class="string">"javascript: alert('hello');"</span>);</div></pre></td></tr></table></figure></p>
+<h3 id="缺点："><a href="#缺点：" class="headerlink" title="缺点："></a>缺点：</h3><p>会有最大字符限制，不同内核会有不同限制大小，目前发现TBS内核超过大概1024字节就注入不成功了，原生webview比较大，是2097152字节 (即：2M)，pc端情况如下：</p>
+<table>
+<thead>
+<tr>
+<th>游览器</th>
+<th style="text-align:center">最大长度（字符数）</th>
+<th style="text-align:right">备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Internet Explorer</td>
+<td style="text-align:center">2083</td>
+<td style="text-align:right">如果超过这个数字，提交按钮没有任何反应</td>
+</tr>
+<tr>
+<td>Firefox</td>
+<td style="text-align:center">65,536</td>
+<td style="text-align:right"></td>
+</tr>
+<tr>
+<td>chrome</td>
+<td style="text-align:center">8182</td>
+<td style="text-align:right"></td>
+</tr>
+<tr>
+<td>Safari</td>
+<td style="text-align:center">80,000</td>
+<td style="text-align:right"></td>
+</tr>
+<tr>
+<td>Opera</td>
+<td style="text-align:center">190,000</td>
+<td style="text-align:right"></td>
+</tr>
+<tr>
+<td>curl（linux下指令）</td>
+<td style="text-align:center">8167</td>
+</tr>
+</tbody>
+</table>
+<h2 id="第二种"><a href="#第二种" class="headerlink" title="第二种"></a>第二种</h2><p>类似于第一种，同样通过webview.loadUrl(“javascript:”)方式注入，但注入的内容是一个script块，在script块里引入外部js，如：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">javascript:<span class="keyword">try</span>&#123;</div><div class="line"></div><div class="line"><span class="keyword">if</span>(<span class="built_in">document</span>.head &amp;&amp; !<span class="built_in">document</span>.getElementById(<span class="string">'UTEST_injectScript'</span>)) &#123;</div><div class="line"></div><div class="line">	varinjectScript = <span class="built_in">document</span>.createElement(<span class="string">'script'</span>);</div><div class="line">	</div><div class="line">	injectScript.src=<span class="string">'file:///sdcard/inject.js'</span>;</div><div class="line">	</div><div class="line">	injectScript.id=<span class="string">'UTEST_injectScript'</span>;</div><div class="line">	</div><div class="line">	<span class="built_in">document</span>.head.appendChild(injectScript);</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line">&#125;<span class="keyword">catch</span>(e) &#123;&#125;</div></pre></td></tr></table></figure></p>
+<p>这段代码就相当于在html页面里引入了 <code>/sdcard/inject.js</code> </p>
+<h2 id="第三种"><a href="#第三种" class="headerlink" title="第三种"></a>第三种</h2><p>第二种方法看似可行，但是如果你是注入别人的网站，而非你自己放在sdcard的html页面的话是会有报错的：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Not allowed to load local resource: file:<span class="comment">///sdcard/inject.js</span></div></pre></td></tr></table></figure></p>
+<p>解决方法参考：<br><a href="https://groups.google.com/forum/#!topic/android-developers/4g6H0vr5_0E" target="_blank" rel="external">https://groups.google.com/forum/#!topic/android-developers/4g6H0vr5_0E</a>  </p>
+<p>使用webview.loadDataWithBaseURL接口注入<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">String data = <span class="string">"&lt;script&gt;alert('hello');&lt;script&gt;"</span>;</div><div class="line">webview.loadDataWithBaseURL( <span class="keyword">null</span>, data, <span class="string">"text/html"</span>, <span class="string">"utf-8"</span>, <span class="keyword">null</span> );</div></pre></td></tr></table></figure></p>
+<h3 id="缺点：-1"><a href="#缺点：-1" class="headerlink" title="缺点："></a>缺点：</h3><p>这种方式看似完美，但还是有问题，每次调用loadDataWithBaseURL时都会触发WebChromeClient#onProgressChanged()方法，就是进度条是会变化的</p>
+<h1 id="综上所述"><a href="#综上所述" class="headerlink" title="综上所述"></a>综上所述</h1><p>最稳妥的方法是将大的js <strong>按功能模块拆分</strong> 成小js，通过 <code>webview.loadUrl</code> 一个一个注入.</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;Android-WebView注入js方式总结&quot;&gt;&lt;a href=&quot;#Android-WebView注入js方式总结&quot; class=&quot;headerlink&quot; title=&quot;Android WebView注入js方式总结&quot;&gt;&lt;/a&gt;Android WebView注入
+    
+    </summary>
+    
+      <category term="Android" scheme="http://vell001.ml/categories/Android/"/>
+    
+    
+      <category term="Android" scheme="http://vell001.ml/tags/Android/"/>
+    
+      <category term="Javascript" scheme="http://vell001.ml/tags/Javascript/"/>
+    
+      <category term="Html" scheme="http://vell001.ml/tags/Html/"/>
+    
+      <category term="WebView" scheme="http://vell001.ml/tags/WebView/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>3ClassContact-三班通讯录</title>
+    <link href="http://vell001.ml/2015/02/01/3class-contact.html"/>
+    <id>http://vell001.ml/2015/02/01/3class-contact.html</id>
+    <published>2015-02-01T13:28:34.000Z</published>
+    <updated>2015-02-01T13:28:37.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>前几天高中群里正在统计老同学的联系方式，大家都把信息发给班长，班长建excel统计。这样感觉好累，主要的问题是以后更新自己的联系方式时特别麻烦，又要让班长去更新一遍excel，太痛苦了。  </p>
+<h2 id="需求"><a href="#需求" class="headerlink" title="需求"></a>需求</h2><p>所以我就准备做一个在线的通讯录，只属于我们高中三班的同学。也算是另一种怀旧吧！<br>实现最简单的几个功能：  </p>
+<ol>
+<li>收集用户信息（即用户注册）  </li>
+<li>显示所有用户，能提供简单的搜索（即通讯录）  </li>
+<li>显示某个用户的具体信息  </li>
+<li>修改更新个人信息  </li>
+</ol>
+<p>附加功能：  </p>
+<ol>
+<li>评论墙（方便交流，已实现）  </li>
+<li>照片墙（怀旧，待实现）  </li>
+<li>定时用户信息更新提醒（保证数据的有效，需要用户提供email，暂时不实现）</li>
+</ol>
+<h2 id="实现简介"><a href="#实现简介" class="headerlink" title="实现简介"></a>实现简介</h2><p>全部使用Html5+JqueryMobile实现！~后台数据库借用Bmob提供的免费服务<br>全部使用客户端静态代码实现整个项目的优点：  </p>
+<ol>
+<li>方便以后封装成app，使用phonecap轻易得到android、iOS、wp等手机平台app  </li>
+<li>不用去租服务器或者空间，可以直接运行在github或者其他提供Pages功能的免费代码托管服务上，省下一大批资金，<strong>可以长期运行</strong>  </li>
+<li>代码简洁，开发快捷，前后台全部由前端语言写成（html+js+css）</li>
+</ol>
+<p>缺点：  </p>
+<ol>
+<li>安全性稍差，没有动态语言的安全性，因为代码全部是在客户端运行，不是在服务器。很容易可以对后台数据进行更改（所以我不会向大家公开项目地址滴~），不过就这个小项目而言，安全性并不是首要考虑问题，而且我已尽力保证数据安全了，它能长期运行才是王道  </li>
+<li>复杂功能实现困难，比如：上传下载图片等</li>
+</ol>
+<h2 id="实现效果"><a href="#实现效果" class="headerlink" title="实现效果"></a>实现效果</h2><p>登录界面<br><img src="/images/3class_contact/Screenshot_2015-01-31-23-22-32.png" alt="">  </p>
+<p>注册界面<br><img src="/images/3class_contact/Screenshot_2015-01-31-23-24-15.png" alt=""><br><img src="/images/3class_contact/Screenshot_2015-01-31-23-24-25.png" alt=""></p>
+<p>注册成功<br><img src="/images/3class_contact/Screenshot_2015-01-31-23-24-42.png" alt=""> </p>
+<p>通讯录主页<br><img src="/images/3class_contact/Screenshot_2015-01-31-23-24-58.png" alt=""> </p>
+<p>评论墙<br><img src="/images/3class_contact/Screenshot_2015-01-31-23-25-43.png" alt=""><br><img src="/images/3class_contact/Screenshot_2015-01-31-23-25-54.png" alt=""> </p>
+<p>个人信息<br><img src="/images/3class_contact/Screenshot_2015-01-31-23-28-21.png" alt=""> </p>
+<p>修改个人信息<br><img src="/images/3class_contact/Screenshot_2015-01-31-23-28-42.png" alt=""><br><img src="/images/3class_contact/Screenshot_2015-01-31-23-28-52.png" alt=""></p>
+<h2 id="后语"><a href="#后语" class="headerlink" title="后语"></a>后语</h2><p>实现这个总共用时应该不到12小时，其中我还算是边学边做，因为之前没有做过JqueryMobile的开发，也很少写javascript代码。目前实现的效果还是可以的，纯前端语言做开发特别方便，唯一不足的就是欠缺些安全性，高手可以秒毁我后台数据！<br>这次做这个项目真的是脑袋一热，就开始动手了，最近这几天家里还有点别的事，耽搁了不少时间，本可以更快的实现。突然让我体会到了node.js的快捷了，我还有点喜欢上了javascript，甚至说有点”神奇”，最大的缺点就是调试太痛苦了~<br>今天到这，有时间再添加功能</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;前几天高中群里正在统计老同学的联系方式，大家都把信息发给班长，班长建excel统计。这样感觉好累，主要的问题是以后更新自己的联系方式时特别麻
+    
+    </summary>
+    
+      <category term="Html" scheme="http://vell001.ml/categories/Html/"/>
+    
+    
+      <category term="javascript" scheme="http://vell001.ml/tags/javascript/"/>
+    
+      <category term="html" scheme="http://vell001.ml/tags/html/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>VSigner-《到》签到系统</title>
+    <link href="http://vell001.ml/2015/01/25/vsigner.html"/>
+    <id>http://vell001.ml/2015/01/25/vsigner.html</id>
+    <published>2015-01-25T12:34:10.000Z</published>
+    <updated>2015-01-25T12:34:14.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近一直在做一个android的软件，算是重新开始学习android。上次做android的程序还是大三的时候android课上做了一个类似通讯录的东西，这次开始做的时候差不多都把android忘光光了。。。<br>这次应学院老师要求做一个签到系统，加上自己想重学android，正好练练手</p>
+<h2 id="需求"><a href="#需求" class="headerlink" title="需求"></a>需求</h2><p>学期末老师找我，让我做一个签到系统，解决学校晚点名问题，我们学校每周末晚上6-7点都要进行晚点名，统计学生在校情况。这是一个费时费力不讨好的工作，想通过一个软件来解决，就是在线签到。有几点基本需求：  </p>
+<ol>
+<li>实名制  </li>
+<li>防止代签  </li>
+<li>定位签到（收集签到者的位置信息）  </li>
+</ol>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><ul>
+<li>针对实名制，肯定需要使用者配合了，可以通过学校强制要求进行实名注册。  </li>
+<li>防止代签的话我是直接绑定手机卡的IMSI（International Mobile Subscriber Identification Number：国际移动用户识别码），也就是说一个手机卡就是一个账号，该账号只能在插了对应手机卡的手机上登录。要代签的话只能把手机卡给代签的同学！  </li>
+<li>定位是通过百度地图的API进行定位的，软件内不能自行修改地址，定位不成功无法签到  </li>
+</ul>
+<p>我想做到让所有用户都有权利发起签到，所以引入了“频道”的概念<br>主要的签到功能实现方法：  </p>
+<ol>
+<li>用户可以自行创建签到频道  </li>
+<li>用户可以搜索到所有用户创建的签到频道，可以订阅频道  </li>
+<li>用户可以开启自己频道的签到，也就是让别人可以发送位置信息到该频道上，订阅了该频道的用户就会收到签到提醒，点击签到提醒可以进行签到，签到完成后该频道的创建者就可以查看到该频道所有签到信息  <blockquote>
+<p>例：  </p>
+<ol>
+<li>老师A时常需要对计111班进行签到，他在VSigner上创建了一个频道叫《计111签到》。他让所有计111班的学生都订阅这个频道。  </li>
+<li>老师现在要签到了，他只要开启《计111签到》签到就行了，计111的所有学生都会收到签到消息。  </li>
+<li>学生B收到签到消息后点击签到，B的位置信息就会收集到服务器，他就签到完成了  </li>
+<li>老师A在《计111签到》频道里查看已签到用户信息就可以查看到学生B的签到信息，这样就完成了整个签到过程</li>
+</ol>
+</blockquote>
+</li>
+</ol>
+<h2 id="实现效果"><a href="#实现效果" class="headerlink" title="实现效果"></a>实现效果</h2><blockquote>
+<p>软件主页: <a href="http://vsigner.bmob.cn" target="_blank" rel="external">点我去VSigner主页</a>  </p>
+</blockquote>
+<ul>
+<li>启动页<br><img src="/images/vsigner/Screenshot_2015-01-25-17-00-41.png" alt=""></li>
+<li>注册页<br><img src="/images/vsigner/Screenshot_2015-01-25-16-39-23.png" alt=""></li>
+<li>签到通知<br><img src="/images/vsigner/Screenshot_2015-01-25-16-44-34.png" alt=""></li>
+<li>自己频道<br><img src="/images/vsigner/Screenshot_2015-01-25-16-44-24.png" alt=""></li>
+<li>订阅频道<br><img src="/images/vsigner/Screenshot_2015-01-25-16-44-06.png" alt=""></li>
+<li>设置<br><img src="/images/vsigner/Screenshot_2015-01-25-16-40-42.png" alt=""></li>
+<li>频道模糊搜索<br><img src="/images/vsigner/Screenshot_2015-01-25-16-41-07.png" alt=""></li>
+<li>频道订阅<br><img src="/images/vsigner/Screenshot_2015-01-25-16-41-28.png" alt=""></li>
+<li>签到<br><img src="/images/vsigner/Screenshot_2015-01-25-16-44-43.png" alt=""></li>
+<li>频道信息<br><img src="/images/vsigner/Screenshot_2015-01-25-16-46-03.png" alt=""></li>
+</ul>
+<h2 id="后语"><a href="#后语" class="headerlink" title="后语"></a>后语</h2><p>这个项目还有很多可以优化的地方，可是最近没时间折腾了，只能做到这样了，暂时能用就行。我要赶紧做的的毕业设计项目了  </p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;最近一直在做一个android的软件，算是重新开始学习android。上次做android的程序还是大三的时候android课上做了一个类似
+    
+    </summary>
+    
+      <category term="Android" scheme="http://vell001.ml/categories/Android/"/>
+    
+    
+      <category term="java" scheme="http://vell001.ml/tags/java/"/>
+    
+      <category term="Android" scheme="http://vell001.ml/tags/Android/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>求First和Follow集【编译原理】</title>
+    <link href="http://vell001.ml/2014/12/29/first-follow.html"/>
+    <id>http://vell001.ml/2014/12/29/first-follow.html</id>
+    <published>2014-12-29T13:41:52.000Z</published>
+    <updated>2014-12-29T13:41:57.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近开始做编译原理的课程设计，我被安排做一个First集和Follow集生成算法模拟软件。我都忘了什么是First和Follow集了，查了回资料开搞明白了First集，Follow集还挺复杂的。<br>我之前一直有做一个带代码高亮的编辑器的，这次逮到机会了，虽然老师要求没有那么复杂，可是自己还是想来个小挑战（实现最简单的识别文法）。于是决定用Qt去写。</p>
+<h2 id="老师要求题目"><a href="#老师要求题目" class="headerlink" title="老师要求题目"></a>老师要求题目</h2><p>模拟算法的基本功能实现：</p>
+<ol>
+<li>输入一个文法G； </li>
+<li>输出由文法G构造的FIRST集合； </li>
+<li>输出由文法G构造的FOLLOW集合； </li>
+<li>构造预测分析表，并判断该文法是否为LL(1)文法。（选作）</li>
+</ol>
+<h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><ul>
+<li>windows7 x64 </li>
+<li>Qt 5.3.1</li>
+</ul>
+<h2 id="大体功能简介"><a href="#大体功能简介" class="headerlink" title="大体功能简介"></a>大体功能简介</h2><h3 id="主界面"><a href="#主界面" class="headerlink" title="主界面"></a>主界面</h3><ol>
+<li>可以选择从文本读取文法，也可自行输入</li>
+<li>文本读取后会跳到编辑器解析</li>
+</ol>
+<h3 id="编辑器"><a href="#编辑器" class="headerlink" title="编辑器"></a>编辑器</h3><ol>
+<li>使用正则表达式解析文档每行字符串里符合标准的文法句子，如果匹配错误给出出错信息，以及行号，同时界面高亮错误位置</li>
+<li>匹配成功后根据对应的终结符或非终结符高亮字符，同时整理代码格式</li>
+<li>可以保存到文本，在退出时自动保存到之前保存的文本</li>
+</ol>
+<h3 id="First求解过程"><a href="#First求解过程" class="headerlink" title="First求解过程"></a>First求解过程</h3><ol>
+<li>直接收取：对形如”U-&gt;a…”的产生式（其中a是终结符），把a收入到First(U)中</li>
+<li>反复传送：对形入”U-&gt;P…”的产生式（其中P是非终结符），应把First(P)中的全部内容传送到First(U)中（递归实现）</li>
+</ol>
+<h3 id="Follow求解过程"><a href="#Follow求解过程" class="headerlink" title="Follow求解过程"></a>Follow求解过程</h3><ol>
+<li>设S为文法的开始符号，将加入Follow(U)中</li>
+<li>反复传送：对形如U-&gt;…P的产生式（其中P是非终结符），应把Follow(U)中的全部内容传送到Follow(P)中。</li>
+</ol>
+<h2 id="界面展示"><a href="#界面展示" class="headerlink" title="界面展示"></a>界面展示</h2><ul>
+<li>代码文件展<br><img src="/images/first_follow/20141229212345.png" alt=""><br><img src="/images/first_follow/20141229214009.png" alt=""></li>
+<li>主界面<br><img src="/images/first_follow/20141229212205.png" alt=""></li>
+<li>编辑器<br><img src="/images/first_follow/20141229212243.png" alt=""><br><img src="/images/first_follow/20141229215442.png" alt=""></li>
+<li>First&amp;Follow显示<br><img src="/images/first_follow/20141229221556.png" alt=""><br><img src="/images/first_follow/20141229221623.png" alt=""></li>
+</ul>
+<h2 id="源代码"><a href="#源代码" class="headerlink" title="源代码"></a>源代码</h2><p>开源地址：<a href="https://github.com/vell001/FirstFollow" target="_blank" rel="external">点我去vell001的Github</a></p>
+<h2 id="后语"><a href="#后语" class="headerlink" title="后语"></a>后语</h2><blockquote>
+<p>这个代码写得不是很好，特别是Follow集求解那块，由于自己对Follow集的理解不是很深，总感觉写得有问题，不过到目前我的测试数据都是正确的。今天貌似有点发烧，就先这样了，头疼~</p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;最近开始做编译原理的课程设计，我被安排做一个First集和Follow集生成算法模拟软件。我都忘了什么是First和Follow集了，查了回
+    
+    </summary>
+    
+      <category term="C/C++" scheme="http://vell001.ml/categories/C-C/"/>
+    
+    
+      <category term="C/C++" scheme="http://vell001.ml/tags/C-C/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>opencv下特征识别VMatcher</title>
+    <link href="http://vell001.ml/2014/11/16/opencv-feature-recognition.html"/>
+    <id>http://vell001.ml/2014/11/16/opencv-feature-recognition.html</id>
+    <published>2014-11-16T09:08:28.000Z</published>
+    <updated>2014-11-16T11:13:19.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>之前玩了一下人脸识别，感觉opencv挺好用的。代码比较简单，因为很多都已经封装好了，而且大多数是以C代码的形式封装，也就是说都是一些函数，只要了解功能和参数就行了，就我这菜鸟花了估计不到半个小时就能自己写一个人脸识别了。可惜我涉及的一个项目里面人脸识别是用不到了，主要是建筑物识别。前天晚上自己训练了一个分类器，感觉训练得不好，识别率不咋样，可能是我的图片不够。今天下午试试特征识别，感觉还可以，而且找到了一个开源的封装类<a href="https://github.com/openplanets/scape/blob/master/pc-qa-matchbox/DPQAlib/RobustMatcher.cpp" target="_blank" rel="external">RobustMatcher</a>,写得很好，用起来也很方便，为了学习也为了达到我的要求，我在这个代码的基础上修改了一些东西，有点不要脸的改了个名字，叫<a href="https://github.com/vell001/VMatcher" target="_blank" rel="external">VMatcher</a></p>
+<h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><ul>
+<li>windows7 x64 </li>
+<li>vs2012</li>
+<li>opencv 2.4.8</li>
+</ul>
+<h2 id="特征识别过程简介"><a href="#特征识别过程简介" class="headerlink" title="特征识别过程简介"></a>特征识别过程简介</h2><ol>
+<li><p>先确定一下用哪个算法做特征识别，有三个类需要实例化，类的详细文档见：<a href="http://docs.opencv.org/modules/features2d/doc/features2d.html" target="_blank" rel="external">docs.opencv.org</a> 特征识别的相关算法优缺点介绍：<a href="http://computer-vision-talks.com/articles/2011-01-04-comparison-of-the-opencv-feature-detection-algorithms/" target="_blank" rel="external">computer-vision-talks</a></p>
+<ol>
+<li>detector: 检测对象，用于检测特征点；有十种检测方法：<ol>
+<li>“FAST” – FastFeatureDetector</li>
+<li>“STAR” – StarFeatureDetector</li>
+<li>“SIFT” – SIFT (nonfree module)</li>
+<li>“SURF” – SURF (nonfree module)</li>
+<li>“ORB” – ORB</li>
+<li>“MSER” – MSER</li>
+<li>“GFTT” – GoodFeaturesToTrackDetector</li>
+<li>“HARRIS” – GoodFeaturesToTrackDetector with Harris detector enabled</li>
+<li>“Dense” – DenseFeatureDetector</li>
+<li>“SimpleBlob” – SimpleBlobDetector<br>常用的有SIFT、SURF、ORB，我这都用的是ORB，我用着这个效果比较好</li>
+</ol>
+</li>
+<li>extractor: 提取对象，用于提取特征描述矩阵；具体类有：<ol>
+<li>SiftDescriptorExtractor</li>
+<li>SurfDescriptorExtractor</li>
+<li>CalonderDescriptorExtractor</li>
+<li>BriefDescriptorExtractor    </li>
+<li>OpponentColorDescriptorExtractor</li>
+</ol>
+</li>
+<li>matcher: 匹配对象，用于匹配两个描述矩阵；具体类有：<ol>
+<li>BruteForceMatcher</li>
+<li>FlannBasedMatcher<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">cv::Ptr&lt;cv::FeatureDetector&gt; detector = <span class="keyword">new</span> cv::OrbFeatureDetector(numKeyPoints);</div><div class="line">cv::Ptr&lt;cv::DescriptorExtractor&gt; extractor = <span class="keyword">new</span> cv::OrbDescriptorExtractor;</div><div class="line">cv::Ptr&lt;cv::DescriptorMatcher&gt; matcher = <span class="keyword">new</span>  cv::BruteForceMatcher&lt;cv::HammingLUT&gt;;</div></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><p>获取图片</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">cv::Mat img1;</div><div class="line">cv::Mat img2;</div><div class="line">img1 = cv::imread(<span class="string">"./images/1.jpg"</span>);</div><div class="line">img2 = cv::imread(<span class="string">"./images/2.jpg"</span>);</div></pre></td></tr></table></figure>
+</li>
+<li><p>检测特征点</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;cv::KeyPoint&gt; img1_keypoints;</div><div class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;cv::KeyPoint&gt; img2_keypoints;</div><div class="line">detector-&gt;detect(img1,img1_keypoints);</div><div class="line">detector-&gt;detect(img2,img2_keypoints);</div></pre></td></tr></table></figure>
+</li>
+<li><p>计算特征描述矩阵</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">cv::Mat descriptors1, descriptors2;</div><div class="line">extractor-&gt;compute(image1,keypoints1,descriptors1);</div><div class="line">extractor-&gt;compute(image2,keypoints2,descriptors2);</div></pre></td></tr></table></figure>
+</li>
+<li><p>匹配两个特征描述</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;cv::DMatch&gt; &gt; matches1;</div><div class="line">matcher-&gt;knnMatch(descriptors1,descriptors2,matches1,<span class="number">2</span>);</div><div class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;cv::DMatch&gt; &gt; matches2;</div><div class="line">matcher-&gt;knnMatch(descriptors2,descriptors1,matches2,<span class="number">2</span>);</div></pre></td></tr></table></figure>
+</li>
+<li><p>剔除距离过大的特征点（由ratioTest实现）</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> removed= ratioTest(matches1);</div><div class="line">	removed= ratioTest(matches2);</div></pre></td></tr></table></figure>
+</li>
+<li><p>剔除不匀称的特征点（由symmetryTest实现）</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;cv::DMatch&gt; matches;</div><div class="line">symmetryTest(matches1,matches2,matches);</div></pre></td></tr></table></figure>
+</li>
+<li><p>如果要求非常精确，可以再加上RANSAC算法去剔除不符合的特征点（由ransacTest实现）</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;cv::DMatch&gt; matches;</div><div class="line">cv::Mat fundemental= ransacTest(symMatches, keypoints1, keypoints2, matches);</div></pre></td></tr></table></figure>
+</li>
+<li><p>显示匹配点图片（由showImage实现）</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">vMatcher.showImage(img1, img2, matches, img1_keypoints, img2_keypoints);</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<h2 id="VMatcher"><a href="#VMatcher" class="headerlink" title="VMatcher"></a>VMatcher</h2><p>根据RobustMatcher修改，封装好了以上所有操作，使用简单，代码见我的<a href="https://github.com/vell001/VMatcher" target="_blank" rel="external">github</a>，上我的测试main函数<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"VMatcher.h"</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> ImageTest <span class="comment">// VideoTest or ImageTest</span></span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">	<span class="comment">// set parameters</span></div><div class="line">	<span class="keyword">int</span> numKeyPoints = <span class="number">2000</span>;</div><div class="line"></div><div class="line">	<span class="comment">//Instantiate robust matcher</span></div><div class="line">	VMatcher vMatcher;</div><div class="line"></div><div class="line">	<span class="comment">//instantiate detector, extractor, matcher</span></div><div class="line">	cv::Ptr&lt;cv::FeatureDetector&gt; detector = <span class="keyword">new</span> cv::OrbFeatureDetector(numKeyPoints);</div><div class="line">	cv::Ptr&lt;cv::DescriptorExtractor&gt; extractor = <span class="keyword">new</span> cv::OrbDescriptorExtractor;</div><div class="line">	cv::Ptr&lt;cv::DescriptorMatcher&gt; matcher = <span class="keyword">new</span> cv::BruteForceMatcher&lt;cv::HammingLUT&gt;;</div><div class="line"></div><div class="line">	vMatcher.setFeatureDetector(detector);</div><div class="line">	vMatcher.setDescriptorExtractor(extractor);</div><div class="line">	vMatcher.setDescriptorMatcher(matcher);</div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> ImageTest</span></div><div class="line">	<span class="comment">//Load input image detect keypoints</span></div><div class="line">	cv::Mat img1;</div><div class="line">	<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;cv::KeyPoint&gt; img1_keypoints;</div><div class="line">	cv::Mat img1_descriptors;</div><div class="line">	cv::Mat img2;</div><div class="line">	<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;cv::KeyPoint&gt; img2_keypoints;</div><div class="line">	cv::Mat img2_descriptors;</div><div class="line"></div><div class="line">	<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;cv::DMatch&gt;  matches;</div><div class="line"></div><div class="line">	img1 = cv::imread(<span class="string">"./images/1.jpg"</span>);</div><div class="line">	img2 = cv::imread(<span class="string">"./images/2.jpg"</span>);</div><div class="line">	</div><div class="line">	vMatcher.match(img1, img2, matches, img1_keypoints, img2_keypoints);</div><div class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"matched number :"</span> &lt;&lt; matches.size() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">	vMatcher.showImage(img1, img2, matches, img1_keypoints, img2_keypoints);</div><div class="line">	cvWaitKey(<span class="number">0</span>);</div><div class="line">	system(<span class="string">"pause"</span>);</div><div class="line"><span class="meta">#<span class="meta-keyword">endif</span> <span class="comment">// ImageTest</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> VideoTest</span></div><div class="line">	cv::Mat img1;</div><div class="line">	<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;cv::KeyPoint&gt; img1_keypoints;</div><div class="line">	cv::Mat img1_descriptors;</div><div class="line">	img1 = cv::imread(<span class="string">"./images/1.jpg"</span>);</div><div class="line">	cv::<span class="function">VideoCapture <span class="title">Camera</span><span class="params">(<span class="number">0</span>)</span></span>;</div><div class="line">	<span class="keyword">if</span> (!Camera.isOpened())</div><div class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">	<span class="keyword">while</span> (cv::waitKey(<span class="number">33</span>) != <span class="number">27</span>) &#123;</div><div class="line">		cv::Mat img2;</div><div class="line">		<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;cv::KeyPoint&gt; img2_keypoints;</div><div class="line">		cv::Mat img2_descriptors;</div><div class="line"></div><div class="line">		<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;cv::DMatch&gt;  matches;</div><div class="line">		</div><div class="line">		<span class="keyword">if</span> (!Camera.read(img2))</div><div class="line">			<span class="keyword">break</span>;</div><div class="line">		<span class="comment">//cv::imshow("video", img2);</span></div><div class="line"></div><div class="line">		vMatcher.match(img1, img2, matches, img1_keypoints, img2_keypoints);</div><div class="line">		<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"matched number :"</span> &lt;&lt; matches.size() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</div><div class="line">		vMatcher.showImage(img1, img2, matches, img1_keypoints, img2_keypoints);</div><div class="line"></div><div class="line">		system(<span class="string">"cls"</span>);</div><div class="line">	&#125;</div><div class="line">	Camera.release();</div><div class="line"><span class="meta">#<span class="meta-keyword">endif</span> <span class="comment">// VideoTest</span></span></div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="识别效果展"><a href="#识别效果展" class="headerlink" title="识别效果展"></a>识别效果展</h2><blockquote>
+<p>来个我的女神赫本的识别  </p>
+</blockquote>
+<h3 id="图片对图片的识别"><a href="#图片对图片的识别" class="headerlink" title="图片对图片的识别"></a>图片对图片的识别</h3><p><img src="/images/opencv/20141116193043.png" alt=""></p>
+<h3 id="图片对视频的识别"><a href="#图片对视频的识别" class="headerlink" title="图片对视频的识别"></a>图片对视频的识别</h3><p><img src="/images/opencv/20141116193820.png" alt=""></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;之前玩了一下人脸识别，感觉opencv挺好用的。代码比较简单，因为很多都已经封装好了，而且大多数是以C代码的形式封装，也就是说都是一些函数，
+    
+    </summary>
+    
+      <category term="OpenCV" scheme="http://vell001.ml/categories/OpenCV/"/>
+    
+    
+      <category term="OpenCV" scheme="http://vell001.ml/tags/OpenCV/"/>
+    
+      <category term="VMatcher" scheme="http://vell001.ml/tags/VMatcher/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>VS2012下配置OpenCV</title>
+    <link href="http://vell001.ml/2014/11/03/opencv-for-vs.html"/>
+    <id>http://vell001.ml/2014/11/03/opencv-for-vs.html</id>
+    <published>2014-11-03T15:30:22.000Z</published>
+    <updated>2014-11-03T15:30:26.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>好久没更新我的博客了，因为我最近正在完成我自己的一个做车的梦想，做一辆卡丁车~这个项目花了我大部分时间，做完后会写一篇长博客来详述的。同时还在做一个和图像处理相关的一个小项目，所以第一想到的就是<em>opencv</em>了，由于非常不习惯VS的编辑器（我基本不用VS，除非迫不得已，所以我的VS版本还是两年前下的2012版），要是做界面开发都会用QT，对QT了解比VS多，O(∩_∩)O哈哈~这次先入门一下opencv，从最基本的VS配置开始吧！QT需要自己编译下opencv，有点麻烦，有时间再做QT的配置吧</p>
+<h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><ul>
+<li>系统: win7 x64 英文版</li>
+<li>开发环境: VisualStudio 2012 X64 （其他版本的VS操作差不多）</li>
+</ul>
+<h2 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h2><blockquote>
+<p>我之前下过2.4.8版的opencv，官网已经出到opencv3了，我就不下了，opencv2就够用了，文档还比较齐全，等熟了opencv2后在升级吧<br>不同版本的配置都是<strong>相通</strong>的，基本一样</p>
+</blockquote>
+<p> opencv: <a href="http://opencv.org/downloads.html" target="_blank" rel="external">http://opencv.org/downloads.html</a><br>下载OpenCV for Windows版，这个是个exe文件，双击运行其实就是解压而已，随便选择一个文件夹，这边我选的是: <code>D:\TDDOWNLOAD\opencv</code></p>
+<h2 id="配置环境"><a href="#配置环境" class="headerlink" title="配置环境"></a>配置环境</h2><ol>
+<li><p>添加到path环境变量（可以添加到系统变量或用户变量，我这添加到用户变量）</p>
+<blockquote>
+<p>推荐添加环境变量，这样就不会出现exe运行时<strong>dll找不见</strong>的问题了！</p>
+<ol>
+<li>新建一个<em>OPENCV248</em>的变量，值为：<code>D:\TDDOWNLOAD\opencv\build\x86\vc12\bin</code><br>具体的目录看你自己的情况而定，比如你是准备开发64位的软件就选x64文件夹，至于vc12还是vc11，我是vs2012本要选vc11的，结果vc12也没出错（莫非向下兼容？no idea！），vs2012是vc11，vs2010则是vc10，更高的选vc12吧！</li>
+<li>在Path变量后添加<code>%OPENCV248%;</code></li>
+<li>如图：<img src="/images/opencv/20141103231302.png" alt=""></li>
+</ol>
+</blockquote>
+</li>
+<li><p>新建项目，配置项目属性</p>
+<ol>
+<li>添加包含目录<br> <code>D:\TDDOWNLOAD\opencv\build\include;</code></li>
+<li><p>添加库目录<br> <code>D:\TDDOWNLOAD\opencv\build\x86\vc12\lib;</code></p>
+<blockquote>
+<p>这个目录还是和<em>OPENCV248</em>环境变量一样，根据你自己的情况而定<br><img src="/images/opencv/20141103233338.png" alt=""></p>
+</blockquote>
+</li>
+<li><p>添加链接器的附加依赖项</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">opencv_calib3d248d.lib</div><div class="line">opencv_contrib248d.lib</div><div class="line">opencv_core248d.lib</div><div class="line">opencv_features2d248d.lib</div><div class="line">opencv_flann248d.lib</div><div class="line">opencv_gpu248d.lib</div><div class="line">opencv_highgui248d.lib</div><div class="line">opencv_imgproc248d.lib</div><div class="line">opencv_legacy248d.lib</div><div class="line">opencv_ml248d.lib</div><div class="line">opencv_nonfree248d.lib</div><div class="line">opencv_objdetect248d.lib</div><div class="line">opencv_ocl248d.lib</div><div class="line">opencv_photo248d.lib</div><div class="line">opencv_stitching248d.lib</div><div class="line">opencv_superres248d.lib</div><div class="line">opencv_ts248d.lib</div><div class="line">opencv_video248d.lib</div><div class="line">opencv_videostab248d.lib</div></pre></td></tr></table></figure>
+<blockquote>
+<p>其中后边<code>248d</code>代表我的opencv是2.4.8版本，对应的调试方案是<code>debug</code>，如果是<code>248</code>则表示调试方案是<code>release</code><br>其他项加入的库可以在<code>D:\TDDOWNLOAD\opencv\build\x86\vc12\lib</code>这个目录下找见<br><img src="/images/opencv/20141103234056.png" alt=""><br><img src="/images/opencv/20141103235021.png" alt=""></p>
+</blockquote>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/opencv.hpp&gt;</span>   </span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span> </span></div><div class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> cv; </div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span> </span>&#123;      </div><div class="line">    IplImage *src;     </div><div class="line">    src = cvLoadImage(<span class="string">"D:\\Picture\\logo.png"</span>);     </div><div class="line">    cvNamedWindow(<span class="string">"vell001"</span>,CV_WINDOW_AUTOSIZE);    </div><div class="line">    cvShowImage(<span class="string">"vell001"</span>,src);    </div><div class="line">    cvWaitKey(<span class="number">0</span>);</div><div class="line">    cvDestroyWindow(<span class="string">"vell001"</span>);  </div><div class="line">    cvReleaseImage(&amp;src); </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>结果：<br><img src="/images/opencv/20141103235710.png" alt=""></p>
+<h2 id="后语"><a href="#后语" class="headerlink" title="后语"></a>后语</h2><p>非常简单的环境配置是学习opencv的开始，下一步挑战人脸识别~</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;好久没更新我的博客了，因为我最近正在完成我自己的一个做车的梦想，做一辆卡丁车~这个项目花了我大部分时间，做完后会写一篇长博客来详述的。同时还
+    
+    </summary>
+    
+      <category term="OpenCV" scheme="http://vell001.ml/categories/OpenCV/"/>
+    
+    
+      <category term="VS2012" scheme="http://vell001.ml/tags/VS2012/"/>
+    
+      <category term="OpenCV" scheme="http://vell001.ml/tags/OpenCV/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>linux服务器备份到邮箱</title>
+    <link href="http://vell001.ml/2014/09/30/linux-back-to-email.html"/>
+    <id>http://vell001.ml/2014/09/30/linux-back-to-email.html</id>
+    <published>2014-09-30T05:37:35.000Z</published>
+    <updated>2014-09-30T05:37:38.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>之前做V&amp;View（维视）博客的时候是放在linux的vps上，vps不稳定，可能随时都会不用了，所以需要定时将整个网站都备份一下，以防万一。由于用的是linux，我可以使用<strong>mutt</strong>直接备份到我的邮箱里面，于是乎研究了下shell编程，当时用一个小时摸索出来的代码，今天拿出来晒晒。<br>因为昨天我又做了我们宿舍用的一个微信公共号版的会员管理系统，也是放在linux服务器上的，所以翻出来了这段代码，废话不多说，上代码吧</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">#!/bin/bash  </div><div class="line"></div><div class="line">#初始化参数</div><div class="line">#总备份文件夹</div><div class="line">backup_all_dir=&quot;/home/backup&quot;</div><div class="line">#这次备份文件夹</div><div class="line">backup_dir=&quot;V&amp;View-backup&quot;-$(date +&quot;%Y%m%d%h%m%s&quot;)</div><div class="line">backup_file=$backup_dir.tar.gz</div><div class="line"></div><div class="line"># 进入到备份总文件夹 </div><div class="line">cd $backup_all_dir</div><div class="line"># 创建存放备份文件和数据库的文件夹，并修改权限为777 </div><div class="line">mkdir -m 777 -p ./$backup_dir</div><div class="line"># 将需要备份的文件复制到备份文件夹内 </div><div class="line">cp -r /usr/local/tomcat/vview ./$backup_dir/vview</div><div class="line"># 导出数据库到备份文件夹内 </div><div class="line">/usr/bin/mysqldump -uroot -p123456 vview &gt; ./$backup_dir/vview.sql</div><div class="line"># 压缩存放备份文件和数据库的文件夹 </div><div class="line">tar zcvf ./$backup_file ./$backup_dir</div><div class="line"># 以附件形式发送压缩包到指定邮箱 </div><div class="line">echo &quot;Backup file for vview.vell001.ml&quot; | mutt -s &quot;V&amp;View(维视)-Backup$(date +%Y-%m-%d)&quot; vell001@qq.com -a ./$backup_file</div><div class="line"># 删除备份文件夹</div><div class="line">rm -rf ./$backup_dir </div><div class="line"># 删除三天前备份压缩包</div><div class="line">find $backup_all_dir -mtime +3 -exec rm -f &#123;&#125; \;</div></pre></td></tr></table></figure>
+<h2 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h2><ol>
+<li>安装mutt :<br> <code>yum -y install mutt</code></li>
+<li>把脚本复制到 <code>/root/BackupToMail.sh</code></li>
+<li>给脚本添加执行权限：<br> <code>chmod +x /root/BackupToMail.sh</code></li>
+<li>测试手动执行脚本：<br> <code>sh /root/BackupToMail.sh</code></li>
+<li>借助vixie-cron自动执行：<br> <code>crontab -e</code><br> 添加如下内容：<br> <code>59 23 * * * /root/BackupToMail.sh</code><br> 每天的23:59分会自动执行<h2 id="备注"><a href="#备注" class="headerlink" title="备注"></a>备注</h2>脚本使用之前必须对脚本进行配置，对于不同的人不同的配置，我就不详解了</li>
+</ol>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;之前做V&amp;amp;View（维视）博客的时候是放在linux的vps上，vps不稳定，可能随时都会不用了，所以需要定时将整个网站都备份一下，
+    
+    </summary>
+    
+      <category term="linux" scheme="http://vell001.ml/categories/linux/"/>
+    
+    
+      <category term="linux" scheme="http://vell001.ml/tags/linux/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>腾讯一面程序题回顾</title>
+    <link href="http://vell001.ml/2014/09/16/tencent-interview.html"/>
+    <id>http://vell001.ml/2014/09/16/tencent-interview.html</id>
+    <published>2014-09-16T14:05:17.000Z</published>
+    <updated>2014-09-16T14:05:20.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天参加了腾讯校园招聘的面试（一面），开始感觉还不错，面试官是个年轻帅气的小伙，稍微小紧张，再聊完跟项目相关的知识（如：SQL注入问题、正则表达式、过滤器等）后，面试官给我抽了一道写程序的题；写代码的时候就真正紧张了，因为题是一个多叉树循环先根遍历的，话说我还没有用循环写过对树的遍历呢，更不用说多叉树了！写了我估计有半个小时，因为开始没听明白他的意思：”循环实现”，我先写了一个递归实现的，他给挑了几个毛病，把我思绪打乱了，后来画图说明白了整个递归遍历过程后让我看了下他的答案的函数定义，我记得大概是这个样子的：<code>Node *next(Node *node)</code>，说递归没有办法在遍历过程中返回每个节点的指针，坚持让我写一个循环的实现，我硬着头皮在纸上又画了一个图去理理思路，每写了一点代码就给他说一遍思绪，大概3-4次后写得差不多了，可是还有两个重大问题没有解决：1. 函数退出条件；2. 遍历兄弟结点条件（这样说有点抽象，等会上代码），后来就让我回去再想想了，整个技术部分的考察也就算是结束了，聊了点生活方面的面试就结束了。回到宿舍休息了下，就准备好好想一下它的实现，后来发现问题很大啊！先上题目</p>
+<h2 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">struct Node&#123;</div><div class="line">    int value;</div><div class="line">    struct Node *parentNode;</div><div class="line">    struct Node *brotherNode;</div><div class="line">    struct Node *childNode;</div><div class="line">&#125;</div><div class="line">```  </div><div class="line">&gt; 一颗多叉树，给定上面的结点，写一个先根遍历函数`next`，可以在循环里面调用`next`进行整个树的遍历  </div><div class="line"></div><div class="line">突然发现我在面试的时候写的第一个递归遍历实现的代码是对的！！！完全没有任何错误啊~~~结果被面试官忽悠!~（哎，其实怪我没有抵住面试官的问题啊！），后来还给改错了，⊙﹏⊙b汗！！！，我当时的代码就差不多是这个样子的：</div></pre></td></tr></table></figure>
+<p>void recursion(Node *node){<br>    if(node == NULL) return;</p>
+<pre><code>cout &lt;&lt; node-&gt;value &lt;&lt; &quot; &quot;;
+
+recursion(node-&gt;childNode);
+recursion(node-&gt;brotherNode);
+</code></pre><p>}<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">回宿舍画了一个差不多包含了全部情况的多叉树的图：  </div><div class="line">![](/images/tencent_interview/20140916224931.png)</div><div class="line">&gt; 正确的先根遍历应该是：`1 2 4 7 8 9 10 11 5 6 3`</div><div class="line"></div><div class="line">用循环去实现遍历，先写一个`next`函数，写这个函数时非常纠结，记得面试时大概是这样子写的</div></pre></td></tr></table></figure></p>
+<p>Node <em>next(Node </em>node){<br>    if(node == NULL) return NULL;<br>    if(node-&gt;childNode != NULL)<br>        return node-&gt;childNode;<br>    else if(node-&gt;brotherNode != NULL)<br>        return node-&gt;brotherNode;<br>    else if(node-&gt;parentNode != NULL)<br>        return next(node-&gt;parentNode-&gt;brotherNode); // 这个退出问题很严重啊<br>}</p>
+<p>Node *node = tree;<br>while(node != NULL){<br>    cout &lt;&lt; node-&gt;value &lt;&lt; “ “;<br>    node = next(node);<br>}<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">&gt; 这个代码存在不严谨的退出问题，遍历结果是：`1 2 4 7 8 9 10 11`，丢失了`5 6 3`这三个数，也就遇见兄弟结点为空的时候就退出了，没有再继续去找父亲结点了，为了解决这个问题，我还没有想到特别好的方法，就是想到了一个能解决的方法，不过感觉上还是觉得代码不够好，上修改后的`next`代码：</div></pre></td></tr></table></figure></p>
+<p>Node <em>next(Node </em>node, int flag=0){<br>    if(flag != 0){<br>        if(node-&gt;brotherNode != NULL)<br>            return node-&gt;brotherNode;<br>        else if(node-&gt;parentNode != NULL)<br>            return next(node-&gt;parentNode, 1);<br>        else<br>            return NULL;<br>    }<br>    if(node-&gt;childNode != NULL)<br>        return node-&gt;childNode;<br>    else if(node-&gt;brotherNode != NULL)<br>        return node-&gt;brotherNode;<br>    else if(node-&gt;parentNode != NULL)<br>        return next(node-&gt;parentNode, 1);<br>}<br>```</p>
+<blockquote>
+<p>我加入了一个<code>flag</code>参数，用来判断当前结点的<code>childNode</code>是否被遍历过了，<code>flag</code>默认是<strong> 0 </strong>，如果传入为非零就代表<code>node</code>的<code>childNode</code>被遍历过了，直接去遍历<code>brotherNode</code>，如果没有<code>brotherNode</code>就继续往上，也就是说<code>node</code>的<code>parentNode</code>的<code>childNode</code>全部遍历完了~~~（有点绕，其实也就是一个递归的过程）<br>谁想到了更好的实现方法请第一时间告诉我啊！！！我的邮箱：<a href="mailto:vell001@qq.com" target="_blank" rel="external">vell001@qq.com</a></p>
+</blockquote>
+<h2 id="结束语"><a href="#结束语" class="headerlink" title="结束语"></a>结束语</h2><p>在等腾讯的二面通知呀~很着急啊，不知道情况咋样呀！要是过了的话就继续分享一些我的经历吧，没过就当纪念了。。。先要感谢杨哥从大三找实习就一直在帮助我，给我提了很多笔试面试的技巧；再要感谢宣哥帮我内推到腾讯，给我说了很多腾讯相关的东西，让我更了解腾讯，也更了解工作；感谢所有在默默帮助我找工作的朋友~真心说声<strong>“谢谢”</strong>了~</p>
+<h2 id="附加"><a href="#附加" class="headerlink" title="附加"></a>附加</h2><p>我回宿舍做的全部代码：  </p>
+<figure class="highlight cpp"><figcaption><span>multiwayTree.cpp</span><a href="/_codes/tencent_interview/multiwayTree.cpp">view raw</a></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;windows.h&gt;</span></span></div><div class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</div><div class="line"></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> Node{</div><div class="line">    <span class="keyword">int</span> value;</div><div class="line">    <span class="keyword">struct</span> Node *parentNode;</div><div class="line">    <span class="keyword">struct</span> Node *brotherNode;</div><div class="line">    <span class="keyword">struct</span> Node *childNode;</div><div class="line">}Node, *Tree;</div><div class="line"></div><div class="line"><span class="function">Tree <span class="title">createTree</span><span class="params">()</span></span>{</div><div class="line">    Tree tree;</div><div class="line">    Node *node, *cup, *bro;</div><div class="line">    tree = (Node *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Node));</div><div class="line">    node = tree;</div><div class="line">    cup = tree; <span class="comment">// 1</span></div><div class="line">    </div><div class="line">    node-&gt;parentNode = <span class="literal">NULL</span>;</div><div class="line">    node-&gt;brotherNode = <span class="literal">NULL</span>;</div><div class="line">    node-&gt;childNode = (Node *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Node));</div><div class="line">    node-&gt;value = <span class="number">1</span>;</div><div class="line">    </div><div class="line">    node = node-&gt;childNode;</div><div class="line">    </div><div class="line">    node-&gt;parentNode = tree;</div><div class="line">    node-&gt;brotherNode = (Node *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Node));</div><div class="line">    node-&gt;childNode = (Node *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Node));</div><div class="line">    node-&gt;value = <span class="number">2</span>;</div><div class="line">    </div><div class="line">    cup = node; <span class="comment">// 2</span></div><div class="line">    node = node-&gt;brotherNode;</div><div class="line">    </div><div class="line">    node-&gt;parentNode = tree;</div><div class="line">    node-&gt;brotherNode = <span class="literal">NULL</span>;</div><div class="line">    node-&gt;childNode = <span class="literal">NULL</span>;</div><div class="line">    node-&gt;value = <span class="number">3</span>;</div><div class="line">    </div><div class="line">    node = cup-&gt;childNode;</div><div class="line">    </div><div class="line">    node-&gt;parentNode = cup;</div><div class="line">    node-&gt;brotherNode = (Node *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Node));</div><div class="line">    node-&gt;childNode = (Node *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Node));</div><div class="line">    node-&gt;value = <span class="number">4</span>;</div><div class="line">    </div><div class="line">    node = node-&gt;brotherNode;</div><div class="line">    </div><div class="line">    node-&gt;parentNode = cup;</div><div class="line">    node-&gt;brotherNode = (Node *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Node));</div><div class="line">    node-&gt;childNode = <span class="literal">NULL</span>;</div><div class="line">    node-&gt;value = <span class="number">5</span>;</div><div class="line">    </div><div class="line">    node = node-&gt;brotherNode; </div><div class="line">    </div><div class="line">    node-&gt;parentNode = cup;</div><div class="line">    node-&gt;brotherNode = <span class="literal">NULL</span>;</div><div class="line">    node-&gt;childNode = <span class="literal">NULL</span>;</div><div class="line">    node-&gt;value = <span class="number">6</span>;</div><div class="line">    </div><div class="line">    cup = cup-&gt;childNode; <span class="comment">// 4</span></div><div class="line">    node = cup-&gt;childNode;</div><div class="line">    </div><div class="line">    node-&gt;parentNode = cup;</div><div class="line">    node-&gt;brotherNode = <span class="literal">NULL</span>;</div><div class="line">    node-&gt;childNode = (Node *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Node));</div><div class="line">    node-&gt;value = <span class="number">7</span>;</div><div class="line">    </div><div class="line">    cup = cup-&gt;childNode; <span class="comment">// 7</span></div><div class="line">    node = cup-&gt;childNode;</div><div class="line">    </div><div class="line">    node-&gt;parentNode = cup;</div><div class="line">    node-&gt;brotherNode = (Node *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Node));</div><div class="line">    node-&gt;childNode = <span class="literal">NULL</span>;</div><div class="line">    node-&gt;value = <span class="number">8</span>;</div><div class="line">    </div><div class="line">    node = node-&gt;brotherNode;</div><div class="line">    </div><div class="line">    node-&gt;parentNode = cup;</div><div class="line">    node-&gt;brotherNode = <span class="literal">NULL</span>;</div><div class="line">    node-&gt;childNode = (Node *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Node));</div><div class="line">    node-&gt;value = <span class="number">9</span>;</div><div class="line">    </div><div class="line">    cup = node; <span class="comment">// 9</span></div><div class="line">    node = cup-&gt;childNode;</div><div class="line">    </div><div class="line">    node-&gt;parentNode = cup;</div><div class="line">    node-&gt;brotherNode = <span class="literal">NULL</span>;</div><div class="line">    node-&gt;childNode = (Node *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Node));</div><div class="line">    node-&gt;value = <span class="number">10</span>;</div><div class="line">    </div><div class="line">    cup = cup-&gt;childNode; <span class="comment">// 10</span></div><div class="line">    node = cup-&gt;childNode;</div><div class="line">    </div><div class="line">    node-&gt;parentNode = cup;</div><div class="line">    node-&gt;brotherNode = <span class="literal">NULL</span>;</div><div class="line">    node-&gt;childNode = <span class="literal">NULL</span>;</div><div class="line">    node-&gt;value = <span class="number">11</span>;</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> tree;</div><div class="line">}</div><div class="line"></div><div class="line"><span class="function">Node *<span class="title">next</span><span class="params">(Node *node, <span class="keyword">int</span> flag=<span class="number">0</span>)</span></span>{ <span class="comment">//flag用判断当前结点的`childNode`是否被遍历过了</span></div><div class="line">    <span class="keyword">if</span>(flag != <span class="number">0</span>){</div><div class="line">        <span class="keyword">if</span>(node-&gt;brotherNode != <span class="literal">NULL</span>)</div><div class="line">            <span class="keyword">return</span> node-&gt;brotherNode;</div><div class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(node-&gt;parentNode != <span class="literal">NULL</span>)</div><div class="line">            <span class="keyword">return</span> next(node-&gt;parentNode, <span class="number">1</span>);</div><div class="line">        <span class="keyword">else</span> </div><div class="line">            <span class="keyword">return</span> <span class="literal">NULL</span>;</div><div class="line">    }</div><div class="line">    <span class="keyword">if</span>(node-&gt;childNode != <span class="literal">NULL</span>)</div><div class="line">        <span class="keyword">return</span> node-&gt;childNode;</div><div class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(node-&gt;brotherNode != <span class="literal">NULL</span>)</div><div class="line">        <span class="keyword">return</span> node-&gt;brotherNode;</div><div class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(node-&gt;parentNode != <span class="literal">NULL</span>)</div><div class="line">        <span class="keyword">return</span> next(node-&gt;parentNode, <span class="number">1</span>);</div><div class="line">}</div><div class="line"><span class="comment">/*</span></div><div class="line">Node *next(Node *node){</div><div class="line">	if(node == NULL) return NULL;</div><div class="line">    if(node-&gt;childNode != NULL)</div><div class="line">        return node-&gt;childNode;</div><div class="line">    else if(node-&gt;brotherNode != NULL)</div><div class="line">        return node-&gt;brotherNode;</div><div class="line">    else if(node-&gt;parentNode != NULL)</div><div class="line">        return next(node-&gt;parentNode-&gt;brotherNode); // 这个退出问题很严重啊</div><div class="line">}</div><div class="line">*/</div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">recursion</span><span class="params">(Node *node)</span></span>{</div><div class="line">    <span class="keyword">if</span>(node == <span class="literal">NULL</span>) <span class="keyword">return</span>;</div><div class="line">    </div><div class="line">    <span class="built_in">cout</span> &lt;&lt; node-&gt;value &lt;&lt; <span class="string">" "</span>;</div><div class="line">    </div><div class="line">    recursion(node-&gt;childNode);</div><div class="line">    recursion(node-&gt;brotherNode);</div><div class="line">}</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>{</div><div class="line"></div><div class="line">    Tree tree = createTree();</div><div class="line"></div><div class="line">    recursion(tree);</div><div class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="built_in">endl</span>;</div><div class="line"></div><div class="line">    Node *node = tree;</div><div class="line">    <span class="keyword">while</span>(node != <span class="literal">NULL</span>){</div><div class="line">        <span class="built_in">cout</span> &lt;&lt; node-&gt;value &lt;&lt; <span class="string">" "</span>;</div><div class="line">        node = next(node);</div><div class="line">    }</div><div class="line">    </div><div class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="built_in">endl</span>;</div><div class="line"></div><div class="line">    system(<span class="string">"pause"</span>);</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;今天参加了腾讯校园招聘的面试（一面），开始感觉还不错，面试官是个年轻帅气的小伙，稍微小紧张，再聊完跟项目相关的知识（如：SQL注入问题、正则
+    
+    </summary>
+    
+      <category term="C/C++" scheme="http://vell001.ml/categories/C-C/"/>
+    
+    
+      <category term="C/C++" scheme="http://vell001.ml/tags/C-C/"/>
+    
+      <category term="tencent" scheme="http://vell001.ml/tags/tencent/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>C++ template模板要点</title>
+    <link href="http://vell001.ml/2014/09/09/cpp-template.html"/>
+    <id>http://vell001.ml/2014/09/09/cpp-template.html</id>
+    <published>2014-09-09T04:10:44.000Z</published>
+    <updated>2014-09-09T04:10:47.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="C-模板和java泛型的区别"><a href="#C-模板和java泛型的区别" class="headerlink" title="C++模板和java泛型的区别"></a>C++模板和java泛型的区别</h2><ol>
+<li><p>C++的<code>template</code>是一个声明而不是定义，在编译期间，由编译器做检查，并由编译器在需要的场合转换成对应的C代码。<br>如：你定义了一个<code>template</code>的函数，当你的代码里第一次调用这个函数时，编译器才会按照模板给你实际的构造出对应类型的函数出来。  </p>
+</li>
+<li><p>而Java的泛型和C++采取的机制完全不同，它利用<strong>擦除</strong>的方式把类型参数替换为限定类型(无限定类型的替换为<code>Object</code>)，然后再编译时插入类型安全的类型转换  </p>
+</li>
+<li><p>优缺点</p>
+<ol>
+<li>效率： C++是真实的会生成对应类型代码，这样效率就等同于自己写了重载函数了；而Java却不生成代码，只是插入类型转换，这样效率肯定没有重载函数快，如果调用次数非常多，类型转换就比较费时间了</li>
+<li>代码量：C++会根据对应类型，生成对应代码，自然代码量会增加不少；而Java只是生成一份限定类型代码，其他的都是类型转换，代码量不会增加</li>
+</ol>
+</li>
+</ol>
+<h2 id="C-模板使用问题"><a href="#C-模板使用问题" class="headerlink" title="C++模板使用问题"></a>C++模板使用问题</h2><ol>
+<li><p>自动类型转换</p>
+<blockquote>
+<p>如果函数已经用了模板，编译器不再对参数进行自动类型转换  </p>
+</blockquote>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">template &lt;class T&gt;</div><div class="line">swap(T&amp; a, T&amp; b)&#123;···&#125;;</div><div class="line">	</div><div class="line">swap(double ,double); // success  </div><div class="line">swap(int ,double); // error!!!</div></pre></td></tr></table></figure>
+</li>
+<li><p>函数重载规则</p>
+<blockquote>
+<p>先检查有没有唯一配对的函数<br>再检查有没有已经生成的模板函数<br>最后找到函数模板生成模板函数</p>
+</blockquote>
+</li>
+<li><p>生成指定类型模板函数</p>
+<blockquote>
+<p>如果声明的函数参数为空，但函数内部使用了模板</p>
+</blockquote>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">template &lt;class T&gt;  </div><div class="line">void function()&#123;···&#125;  </div><div class="line"></div><div class="line">function&lt;int&gt; ();  // 生成int的模板函数  </div><div class="line">function&lt;double&gt; (); // 生成double的模板函数</div></pre></td></tr></table></figure>
+</li>
+<li><p>复杂调用举例</p>
+<ol>
+<li><p><code>Vector&lt; int (*) (Vector&lt;double&gt;&amp;, int)&gt;</code>  </p>
+<blockquote>
+<p>最外面的<code>Vector</code>里包含了一个函数指针，这个函数返回值为<code>int</code>，第一个参数是一个double类型的<code>Vector</code>的引用，第二个参数是<code>int</code></p>
+</blockquote>
+</li>
+<li><p>模板包含变量</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">template &lt;class T, int number = 100&gt;  </div><div class="line">class Vector&#123;···&#125;;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>这样的模板在调用的时候可以指定<code>number</code>的值：<code>Vector&lt;int, 1000&gt; v1;</code></p>
+</blockquote>
+</li>
+</ol>
+</li>
+</ol>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;C-模板和java泛型的区别&quot;&gt;&lt;a href=&quot;#C-模板和java泛型的区别&quot; class=&quot;headerlink&quot; title=&quot;C++模板和java泛型的区别&quot;&gt;&lt;/a&gt;C++模板和java泛型的区别&lt;/h2&gt;&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;C++的&lt;code&gt;t
+    
+    </summary>
+    
+      <category term="C/C++" scheme="http://vell001.ml/categories/C-C/"/>
+    
+    
+      <category term="C/C++" scheme="http://vell001.ml/tags/C-C/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>C++ 拷贝构造函数要点</title>
+    <link href="http://vell001.ml/2014/09/09/cpp-copy-constructor.html"/>
+    <id>http://vell001.ml/2014/09/09/cpp-copy-constructor.html</id>
+    <published>2014-09-09T04:10:44.000Z</published>
+    <updated>2014-09-09T04:10:47.000Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="C-Copy-Constructor"><a href="#C-Copy-Constructor" class="headerlink" title="C++ Copy Constructor"></a>C++ Copy Constructor</h1><h2 id="C-里初始化时”-”和”-”是同一个意思"><a href="#C-里初始化时”-”和”-”是同一个意思" class="headerlink" title="C++里初始化时”()”和”=”是同一个意思"></a>C++里初始化时”()”和”=”是同一个意思</h2><pre><code>int i = 1
+int i(1);
+</code></pre><h2 id="拷贝构造函数就是拿一个存在的对象初始化另一个对象"><a href="#拷贝构造函数就是拿一个存在的对象初始化另一个对象" class="headerlink" title="拷贝构造函数就是拿一个存在的对象初始化另一个对象"></a>拷贝构造函数就是拿一个存在的对象初始化另一个对象</h2><pre><code>Person p2 = p1;
+Person p2(p1);
+</code></pre><blockquote>
+<p>都是调用了Person(const Person&amp;)构造函数，而不是Person(Person p)，这样的话就无限递归了~因为Person(Person p)调用时，p的初始化还是要调用拷贝构造函数</p>
+</blockquote>
+<h2 id="默认拷贝构造函数"><a href="#默认拷贝构造函数" class="headerlink" title="默认拷贝构造函数"></a>默认拷贝构造函数</h2><p>默认拷贝构造函数是递归调用成员变量的拷贝构造。是成员变量级别的拷贝，不是字节拷贝</p>
+<blockquote>
+<p>也就是说，基本类型的话就是纯字节拷贝了，对象的话就是调用拷贝构造函数了  </p>
+<ul>
+<li>如果存在指针的话，在新对象和旧对象里面的指针指向同一片内存  </li>
+<li>这样会出现一个问题，当旧对象在析构函数里面delete了那片内存，新对象里就会出现指针错误，而且析构的时候肯定出错！</li>
+<li>所以理想状态下是指针也拷贝一份内存，也就是要自己去实现一个拷贝构造函数了<br><img src="/images/cpp/copy_constructor.png" alt=""><br>左边的就是默认构造函数，右边的是理想状态  </li>
+</ul>
+</blockquote>
+<h2 id="调用场景"><a href="#调用场景" class="headerlink" title="调用场景"></a>调用场景</h2><h3 id="对象初始化"><a href="#对象初始化" class="headerlink" title="对象初始化"></a>对象初始化</h3><pre><code>Person p = p1;
+Person p(p1);
+</code></pre><h3 id="函数调用（参数是一个对象，不是引用，也不是指针时）"><a href="#函数调用（参数是一个对象，不是引用，也不是指针时）" class="headerlink" title="函数调用（参数是一个对象，不是引用，也不是指针时）"></a>函数调用（参数是一个对象，不是引用，也不是指针时）</h3><pre><code>void function(Person p);
+</code></pre><h3 id="函数返回"><a href="#函数返回" class="headerlink" title="函数返回"></a>函数返回</h3><pre><code>Person function();
+Person p = function();
+</code></pre><blockquote>
+<p>由于编译器的不同，大多数编译器会进行一些优化，调用次数也许会不同，如：</p>
+<pre><code>Person function(int i){
+    return Person(i);
+}
+Person p = function(1);
+</code></pre><p>这样的话大部分编译器会直接合并成：p = Persion(1);</p>
+</blockquote>
+<h2 id="尽量不要依赖系统给的拷贝构造函数"><a href="#尽量不要依赖系统给的拷贝构造函数" class="headerlink" title="尽量不要依赖系统给的拷贝构造函数"></a>尽量不要依赖系统给的拷贝构造函数</h2><blockquote>
+<p>也就说，一个好习惯就是，当你创建一个类时，自己添加至少一下三个函数</p>
+<ul>
+<li>默认构造函数</li>
+<li>virtual析构函数</li>
+<li>拷贝构造函数</li>
+</ul>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;C-Copy-Constructor&quot;&gt;&lt;a href=&quot;#C-Copy-Constructor&quot; class=&quot;headerlink&quot; title=&quot;C++ Copy Constructor&quot;&gt;&lt;/a&gt;C++ Copy Constructor&lt;/h1&gt;&lt;h2 i
+    
+    </summary>
+    
+      <category term="C/C++" scheme="http://vell001.ml/categories/C-C/"/>
+    
+    
+      <category term="C/C++" scheme="http://vell001.ml/tags/C-C/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>C++ const详解</title>
+    <link href="http://vell001.ml/2014/09/08/cpp-const-problem.html"/>
+    <id>http://vell001.ml/2014/09/08/cpp-const-problem.html</id>
+    <published>2014-09-08T03:15:53.000Z</published>
+    <updated>2014-09-08T03:15:57.000Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="C-const"><a href="#C-const" class="headerlink" title="C++ const"></a>C++ const</h1><h3 id="const-变量使用问题"><a href="#const-变量使用问题" class="headerlink" title="const 变量使用问题"></a>const 变量使用问题</h3><blockquote>
+<p>C++内的各种限制关键字都是在编译期间由编译器去做处理的而不是运行期间。如下代码：  </p>
+</blockquote>
+<pre><code>int x;
+cin &gt;&gt; x;
+const int size = x;
+int array[size]; // error!!!
+</code></pre><blockquote>
+<p>这段代码里面看似没啥问题，其实问题很显然。<code>size</code>是一个const，但它的值却是<code>x</code>来的，是个不确定的值。用<code>size</code>去定义数组大小，在编译期间编译器就不知道给<code>array</code>分配多少内存了！</p>
+</blockquote>
+<h3 id="const-定义指针问题"><a href="#const-定义指针问题" class="headerlink" title="const 定义指针问题"></a>const 定义指针问题</h3><blockquote>
+<p>如果const在修饰一个指针时，出现两种情况：1. 指针是const、2. 指针指向的对象是const<br>怎么区分这两种情况呢？看代码:</p>
+</blockquote>
+<pre><code>Person p(&quot;VellBibi&quot;, 21);
+const Person *ptr = &amp;p; 
+Person const* ptr = &amp;p;
+Person *const ptr = &amp;p;
+Person const*const ptr = &amp;p;
+</code></pre><blockquote>
+<p>有木有一种虐心的感角，当我第一次看见这样子的代码时，想跳楼啊~我记得java里面就一个<code>final</code>关键字，我当时没咋学就会用了，这C++搞得这么让人头疼！不过其实这些都是表象，java只是对C++做了几个减法，C++才真正体现了编程的灵活性。<br>回到主题，怎么区分？</p>
+</blockquote>
+<ol>
+<li><p>指针是const<br><code>const</code>在<code>*</code>后，如：<br><code>Person *const ptr = &amp;p;</code><br>意义： <code>ptr</code>指针的值不能变，像<code>ptr++;</code>就会报错；但<code>ptr</code>指向对象的值可以变，如：<code>ptr-&gt;setName(&quot;Vell001&quot;)</code>。</p>
+</li>
+<li><p>指针指向的对象是const<br><code>const</code>在<code>*</code>前，如：<br><code>const Person *ptr = &amp;p;</code><br><code>Person const* ptr = &amp;p;</code><br>意义： <code>ptr</code>指向的对象不能通过<code>ptr</code>进行改变，如：<code>ptr-&gt;setName(&quot;Vell001&quot;)</code>编译会报错，但不是说<code>ptr</code>指向的对象不能被改变了，它还可以用其他方式修改，如：<code>p.setName(&quot;Vell001&quot;)</code>。</p>
+</li>
+<li><p>以上两种都存在<br>也就是在<code>*</code>前后都有<code>const</code><br><code>Person const*const ptr = &amp;p;</code><br>意义： <code>ptr</code>指针的值不能变， <code>ptr</code>指向的对象不能通过<code>ptr</code>进行改变  </p>
+</li>
+</ol>
+<h3 id="const-指针赋值问题"><a href="#const-指针赋值问题" class="headerlink" title="const 指针赋值问题"></a>const 指针赋值问题</h3><pre><code>const int x = 1;
+int *p1 = &amp;x; // error!
+const int *y = &amp;x;
+int *p2 = y; // error!
+</code></pre><ul>
+<li>以上代码分析：<code>const</code>的变量不能赋值给非<code>const</code>变量，这样会破坏原有变量的<code>const</code>属性！  </li>
+<li>强制转换： 使用<code>const_cast</code>去转换，如：<br><code>int *p3 = const_cast&lt;int *&gt;(y);</code>  </li>
+</ul>
+<h3 id="const-字符串指针问题"><a href="#const-字符串指针问题" class="headerlink" title="const 字符串指针问题"></a>const 字符串指针问题</h3><pre><code>char *str = &quot;hello vell001&quot;;
+str[0] = &apos;v&apos;;
+</code></pre><ul>
+<li>代码分析： 这段代码编译的时候只给了一个<strong>warning</strong>，说String到char *的用法是deprecated的了。但运行时却直接出错退出了！</li>
+<li>原因： <code>&quot;hello vell001&quot;</code>是一个静态字符串，一般放在代码段，这部分内存是不能通过程序修改的，也就是<code>str[0] = &#39;v&#39;</code>这句话肯定是出错的。</li>
+<li>正确写法：<br><code>const char *str = &quot;hello vell001&quot;;</code>  这样就保证<code>str</code>是不能修改<code>&quot;hello vell001&quot;</code>的了！<br>如果你是想要得到一个能修改的char数组： <code>char str[] = &quot;hello vell001&quot;;</code></li>
+</ul>
+<h3 id="const-函数"><a href="#const-函数" class="headerlink" title="const 函数"></a>const 函数</h3><p>在类的定义里面，成员函数定义如：<code>void function() const；</code><br>表示在<code>function</code>函数里面不能改变类的成员变量，也就是相当于在<code>function</code>函数里把整个对象const了！<br><strong>注意：</strong>在定义这样的函数时，.h文件和.cpp文件都要带上<code>const</code>，因为编译器是单独编译.h和.cpp文件的~</p>
+<h3 id="const-类"><a href="#const-类" class="headerlink" title="const 类"></a>const 类</h3><pre><code>const Person p(&quot;vell001&quot;, 21);
+p.setName(&quot;vell002&quot;); // error!
+</code></pre><ul>
+<li>代码分析： 定义了一个const的Person对象p，也就是说p的成员变量是不可改变的，而第二句话是调用了p的setName方法，改变了p的name属性，这是不科学的啊，所以肯定会报错啊！  </li>
+<li>问题： 那么怎样才能保证调用Person的方法是安全的呢？ </li>
+<li>解决： 在函数定义的时候，将不改变Person成员变量的方法后加上const，也就是const 函数如：<code>void function() const；</code></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;C-const&quot;&gt;&lt;a href=&quot;#C-const&quot; class=&quot;headerlink&quot; title=&quot;C++ const&quot;&gt;&lt;/a&gt;C++ const&lt;/h1&gt;&lt;h3 id=&quot;const-变量使用问题&quot;&gt;&lt;a href=&quot;#const-变量使用问题&quot; cla
+    
+    </summary>
+    
+      <category term="C/C++" scheme="http://vell001.ml/categories/C-C/"/>
+    
+    
+      <category term="C/C++" scheme="http://vell001.ml/tags/C-C/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>C/C++的一些算法题</title>
+    <link href="http://vell001.ml/2014/09/02/cpp-algorithm-problem.html"/>
+    <id>http://vell001.ml/2014/09/02/cpp-algorithm-problem.html</id>
+    <published>2014-09-02T12:53:51.000Z</published>
+    <updated>2014-09-02T12:53:51.000Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote>
+<p>这学期没啥课，所以在网上随便找了一些算法题来做做，希望自己能坚持每天至少做一道的节奏，做完5道更新一篇博客<br>我的代码全部是在QTCreator下完成的，尽量使用C/C++的基本语法，源代码可以到我的github找到</p>
+</blockquote>
+<h2 id="把二元查找树转变成排序的双向链表"><a href="#把二元查找树转变成排序的双向链表" class="headerlink" title="把二元查找树转变成排序的双向链表"></a>把二元查找树转变成排序的双向链表</h2><p>题目：<br>输入一棵二元查找树，将该二元查找树转换成一个排序的双向链表。<br>要求不能创建任何新的结点，只调整指针的指向。</p>
+<a id="more"></a>
+<pre><code>       10
+   /    \
+  6      14
+  /  \   /   \
+4    8 12    16
+</code></pre><p>转换成双向链表<br>4=6=8=10=12=14=16。</p>
+<pre><code>typedef struct LinkedListNode{
+    DATATYPE data;
+    struct LinkedListNode *lNode;
+    struct LinkedListNode *rNode;
+}LinkedListNode, *LinkedList;
+
+/*
+ * 把tree的结点转换成已head开头和tail结尾的双向循环链表
+ */
+void treeToLinkedList(BinaryTree tree, LinkedListNode *&amp; head, LinkedListNode *&amp; tail){
+    if(tree == NULL) {
+        tail = head;
+        return;
+    }
+    // 申请当前结点的空间
+    LinkedListNode *node = (LinkedListNode *)malloc(sizeof(LinkedListNode));
+    node-&gt;data = tree-&gt;data;
+
+    // 将左右子树分别转换
+    LinkedListNode *leftTail=NULL, *rightHead=NULL;
+    treeToLinkedList(tree-&gt;lChild, head, leftTail); // 将左子树转换
+    treeToLinkedList(tree-&gt;rChild, rightHead, tail); // 将右子树转换
+
+    // 将当前结点连入双向链表
+    node-&gt;rNode = rightHead;
+    node-&gt;lNode = leftTail;
+
+    if(leftTail != NULL) leftTail-&gt;rNode = node;
+    else head = node; // 确定头结点
+    if(rightHead != NULL) rightHead-&gt;lNode = node;
+    else tail = node; // 确定尾结点
+
+    // 使链表循环
+    head-&gt;lNode = tail;
+    tail-&gt;rNode = head;
+}
+</code></pre>]]></content>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;这学期没啥课，所以在网上随便找了一些算法题来做做，希望自己能坚持每天至少做一道的节奏，做完5道更新一篇博客&lt;br&gt;我的代码全部是在QTCreator下完成的，尽量使用C/C++的基本语法，源代码可以到我的github找到&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;把二元查找树转变成排序的双向链表&quot;&gt;&lt;a href=&quot;#把二元查找树转变成排序的双向链表&quot; class=&quot;headerlink&quot; title=&quot;把二元查找树转变成排序的双向链表&quot;&gt;&lt;/a&gt;把二元查找树转变成排序的双向链表&lt;/h2&gt;&lt;p&gt;题目：&lt;br&gt;输入一棵二元查找树，将该二元查找树转换成一个排序的双向链表。&lt;br&gt;要求不能创建任何新的结点，只调整指针的指向。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="C/C++" scheme="http://vell001.ml/categories/C-C/"/>
+    
+    
+      <category term="C/C++" scheme="http://vell001.ml/tags/C-C/"/>
+    
+      <category term="QT" scheme="http://vell001.ml/tags/QT/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>VFeiQ简介</title>
+    <link href="http://vell001.ml/2014/08/27/VFeiQ.html"/>
+    <id>http://vell001.ml/2014/08/27/VFeiQ.html</id>
+    <published>2014-08-27T05:51:11.000Z</published>
+    <updated>2014-08-27T05:51:11.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote>
+<p>我们学校的生产实习从6月30号开始到8月2号，每周六天，总共30天；这是一段值得怀念的日子，每天都是9点准时到实验室<strong>上班</strong>，每天的气温都在37度以上，感受到了西安最炎酷的夏天，也感受到了工作的气氛。<br>我选的是C++方向，项目是基于QT开发的一个局域网通信系统，我们组我给取名为<strong>VFeiQ</strong>。</p>
+</blockquote>
+<h2 id="文档和设计"><a href="#文档和设计" class="headerlink" title="文档和设计"></a>文档和设计</h2><blockquote>
+<p>一开始做这个项目时是写各种文档，神马需求分析、概要设计、详细设计…每天还要写工作日志，整个项目做下来写了非常多的文档，这是我们小组最后出来的文档文件夹：<br><img src="/images/vfeiq/20140827141702.png" alt=""></p>
+</blockquote>
+<ol>
+<li><p>整个系统的需求分析框架图：<br><img src="/images/vfeiq/vfeiq001.jpg" alt=""></p>
+</li>
+<li><p>系统用例图：<br><img src="/images/vfeiq/vfeiq002.png" alt=""></p>
+</li>
+<li><p>业务流程图：<br><img src="/images/vfeiq/vfeiq003.jpg" alt=""></p>
+</li>
+</ol>
+<h2 id="代码编写与设计"><a href="#代码编写与设计" class="headerlink" title="代码编写与设计"></a>代码编写与设计</h2><blockquote>
+<p>第一次使用QT去写一个完整的程序是老师布置的一个小作业题，就是这个东西《<a href="/2014/06/30/first-qt-project.html">第一个完整的QT程序</a>》；这个完了就直接开始写整个系统的通信功能。我之前一直学的是java方面的，包括android，很少使用C++去写东西，最多用下C语言。这次是个不错的挑战，不过刚开始写的时候代码是天天改，大多数是因为语法问题，后来纠结于使用指针还是引用，在后来变成了整个系统分层的设计，模块的设计。学习了很多QT的东西，包括信号槽、model-view的概念，还有一些容器的使用等等。我慢慢发现QT设计的太好了，特别是信号槽的设计！而且容器的设计也是非常棒的，可以和java一样去访问，当然还可以和VC一样去用。甚至现在我写一个String的时候还老写成QString了～～～<br>觉得第一个C++应该向java学习的地方就是java的包管理；好像C++就没有包的概念，也允许文件名和类名不一致，java这种规范是让世界的程序员都拥有统一的编程习惯，而C++的理念却是使编程自由度最大化。QTCreator最应该向Eclipse学习的地方就是代码自动生成功能了；我在写QT代码时写得最烦的就是get/set函数，这个完全可以让编辑器去自动生成的啊，可是QTCreator没有这个功能。<br>这个项目是完全使用git管理的，全部代码开源到<a href="https://github.com/vell001/VFeiQ" target="_blank" rel="external">github</a>上</p>
+</blockquote>
+<ol>
+<li><p>整体设计的架构图：<br><img src="/images/vfeiq/vfeiq004.png" alt=""></p>
+</li>
+<li><p>聊天时序图：<br><img src="/images/vfeiq/聊天时序图.png" alt=""></p>
+</li>
+<li><p>上线广播时序图：<br><img src="/images/vfeiq/上线广播时序图.png" alt=""></p>
+</li>
+<li><p>文件传输时序图：<br><img src="/images/vfeiq/文件传输时序图.png" alt=""></p>
+</li>
+<li><p>文件共享时序图：<br><img src="/images/vfeiq/文件共享时序图.png" alt=""></p>
+</li>
+</ol>
+<h2 id="成果展"><a href="#成果展" class="headerlink" title="成果展"></a>成果展</h2><blockquote>
+<p>其中最有价值也是最难的部分应该是文件传输，我当时严重感冒了，刚开始代码写得非常乱，后来感冒好了，发现文件传输部分的代码实在是看不下去了，差不多又重写了一遍；我在写代码的时候一直注重设计，反复考虑每个类的功能，整个系统的架构，正因如此，我经常动不动改掉一大堆代码，甚至推翻之前的协议。</p>
+</blockquote>
+<ol>
+<li><p>主界面<br><img src="/images/vfeiq/20140731111302.png" alt=""></p>
+</li>
+<li><p>任务栏最小化界面<br><img src="/images/vfeiq/20140731112014.png" alt=""></p>
+</li>
+<li><p>最近联系人界面<br><img src="/images/vfeiq/20140731111735.png" alt=""></p>
+</li>
+<li><p>联系人搜索界面<br><img src="/images/vfeiq/20140731111830.png" alt=""></p>
+</li>
+<li><p>聊天界面<br><img src="/images/vfeiq/20140731111433.png" alt=""></p>
+</li>
+<li><p>聊天截图功能<br><img src="/images/vfeiq/20140731111457.png" alt=""></p>
+</li>
+<li><p>聊天字体颜色选择功能<br><img src="/images/vfeiq/20140731111526.png" alt=""></p>
+</li>
+<li><p>聊天字体和大小选择功能<br><img src="/images/vfeiq/20140731111543.png" alt=""></p>
+</li>
+<li><p>聊天表情发送功能<br><img src="/images/vfeiq/20140731112107.png" alt=""></p>
+</li>
+<li><p>多文件传输功能<br><img src="/images/vfeiq/20140731111616.png" alt=""></p>
+</li>
+<li><p>多文件传输功能<br><img src="/images/vfeiq/20140731111616.png" alt=""></p>
+</li>
+<li><p>查看和下载别人的共享文件<br><img src="/images/vfeiq/20140731111558.png" alt=""></p>
+</li>
+<li><p>设置自己的共享文件<br><img src="/images/vfeiq/20140731111647.png" alt=""></p>
+</li>
+<li><p>系统设置之头像设置<br><img src="/images/vfeiq/20140731111750.png" alt=""></p>
+</li>
+<li><p>应用中心<br><img src="/images/vfeiq/20140731111709.png" alt=""></p>
+</li>
+<li><p>天气预报<br><img src="/images/vfeiq/20140731111723.png" alt=""></p>
+</li>
+</ol>
+<h2 id="项目源代码"><a href="#项目源代码" class="headerlink" title="项目源代码"></a>项目源代码</h2><blockquote>
+<p>我一直喜欢开源的东西，当然我自己的东西更喜欢开源，不管做得好不好，开源了就意味着可能给别人带来帮助，我喜欢这种开源的感觉～</p>
+</blockquote>
+<p>全部项目代码，github: <a href="https://github.com/vell001/VFeiQ" target="_blank" rel="external">https://github.com/vell001/VFeiQ</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;blockquote&gt;
+&lt;p&gt;我们学校的生产实习从6月30号开始到8月2号，每周六天，总共30天；这是一段值得怀念的日子，每天都是9点准时到实验
+    
+    </summary>
+    
+      <category term="QT" scheme="http://vell001.ml/categories/QT/"/>
+    
+    
+      <category term="C/C++" scheme="http://vell001.ml/tags/C-C/"/>
+    
+      <category term="QT" scheme="http://vell001.ml/tags/QT/"/>
+    
+      <category term="VFeiQ" scheme="http://vell001.ml/tags/VFeiQ/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>diy游戏方向盘</title>
+    <link href="http://vell001.ml/2014/08/12/diy-game-wheel.html"/>
+    <id>http://vell001.ml/2014/08/12/diy-game-wheel.html</id>
+    <published>2014-08-12T07:33:18.000Z</published>
+    <updated>2014-08-12T07:33:18.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote>
+<p>实习完后一直在学校呆着，真是呆着~啥事没干。实习过去了轻松了许多，昨天开始手痒了，好久没玩车了。立马想起来很久的想法了，就是做个游戏方向盘啦</p>
+</blockquote>
+<h2 id="准备阶段"><a href="#准备阶段" class="headerlink" title="准备阶段"></a>准备阶段</h2><blockquote>
+<p>准备使用我手上现有的arduino uno r3（就是上次<a href="/2014/03/09/vsim.html">模拟赛车座椅</a>的那个控制板!）来做，之前就知道r3可以转到dfu模式直接实现usb hid就行了，可是我的r3板子和官网的居然不是一样的，我发现，我的板子芯片是atmega328p的，可恶啊，官网是atmega16u2的。我问淘宝商家我的板子能不能进dfu，人家反问我神马是dfu~<br>后来google了半天，有人说atmega328p根本没有usb的支持，好吧，昨天一下午就是折腾这个。我也不管有没有支持了，当然，如果是直接使用usb hid的话会简单得多，而且网上资料也多。<br>我晚上直接放弃了又usb支持的想法了，开始找纯粹的软件驱动方法了。我上github和SourceForge搜了下开源软件，最终在Sourceforge上找到了一个比较热门的摇杆模拟器软件叫<strong>VJOY</strong>(<a href="http://vjoystick.sourceforge.net/site/" target="_blank" rel="external">软件地址</a>)，查了相关资料发现，这是一个比较古老的项目，貌似底层的开发是没有开源的，不过提供了很好的接口。而且最近有人更新了beta版，下载量也不错，就决定用它了<br>整体架构流程：通过arduino获取电位器的值，通过串口传输到pc端的feeder里，做一些处理后feeder再进行对vjoy虚拟控制器的设置，vjoy虚拟控制器控制游戏。<br>示意图： <img src="/images/game_wheel/system_arch.png" alt=""><br>my feeder: 这个就是我的主要代码部分，通过它得到arduino传过来的数据，处理后发送个vjoy的虚拟控制器，达到一个控制效果</p>
+</blockquote>
+<h2 id="实施"><a href="#实施" class="headerlink" title="实施"></a>实施</h2><blockquote>
+<p>因为就做最简单的控制方向，就没有高神马协议了，做复杂了再说吧  </p>
+</blockquote>
+<h3 id="arduino编程"><a href="#arduino编程" class="headerlink" title="arduino编程"></a>arduino编程</h3><p>这是一小部分程序，直接使用ardublock插件了：<br><img src="/images/game_wheel/ardublock.png" alt="">  </p>
+<h3 id="vjoy安装配置"><a href="#vjoy安装配置" class="headerlink" title="vjoy安装配置"></a>vjoy安装配置</h3><p>安装配置教程很多，直接上官网吧，不会的goole下咯：<a href="http://vjoystick.sourceforge.net/site/" target="_blank" rel="external">http://vjoystick.sourceforge.net/site/</a></p>
+<h3 id="my-feeder的编写"><a href="#my-feeder的编写" class="headerlink" title="my feeder的编写"></a>my feeder的编写</h3><p>在vjoy的sdk里面有很详细的说明文档，也非常简单。vjoy支持C#和C++，我这选择C++，开发环境是win7X64 VS2012，官网使用的是VS2008，只要不低于VS2008就行了。<br>这个feeder要做两件事：  </p>
+<ol>
+<li>读取串口值  </li>
+<li>设置vjoy虚拟控制器</li>
+</ol>
+<p>设置vjoy只要按照说明文档来，应该没问题，可是串口编程我之前从来没做过啊，小挑战，今早就是折腾串口编程了。<br>微软提供的串口编程接口实在太难用了，就一直在找第三方大神的，后来找到了CnComm这个类，国产的哦！非常好用。作者的博客：<a href="http://blog.csdn.net/wujian53/article/details/4090554" target="_blank" rel="external">http://blog.csdn.net/wujian53/article/details/4090554</a></p>
+<p>这个代码就不上了，等我做完善了，再一块开源吧~</p>
+<h2 id="成果展"><a href="#成果展" class="headerlink" title="成果展"></a>成果展</h2><p>演示视频： </p>
+<embed src="http://www.tudou.com/v/htw40lFy-vk/&resourceId=99962045_05_02_99&tid=0/v.swf" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" wmode="opaque" width="480" height="400">
+
+<hr>
+<p>结束语</p>
+<blockquote>
+<p>一直想自制一个游戏方向盘，从昨天开始查资料，到今天上午，完成了这么一个demo，功能有了，就差个外壳了，呵呵，当然还有力反馈没有做，暂时没钱，等有钱了再说吧</p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;blockquote&gt;
+&lt;p&gt;实习完后一直在学校呆着，真是呆着~啥事没干。实习过去了轻松了许多，昨天开始手痒了，好久没玩车了。立马想起来很久的想
+    
+    </summary>
+    
+      <category term="VSim" scheme="http://vell001.ml/categories/VSim/"/>
+    
+    
+      <category term="VSim" scheme="http://vell001.ml/tags/VSim/"/>
+    
+      <category term="diy" scheme="http://vell001.ml/tags/diy/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>C++多态简介</title>
+    <link href="http://vell001.ml/2014/07/20/polymorphisn.html"/>
+    <id>http://vell001.ml/2014/07/20/polymorphisn.html</id>
+    <published>2014-07-20T08:55:14.000Z</published>
+    <updated>2014-07-20T08:55:14.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote>
+<p>借着这次学校的生产实习来回顾下C++的多态，这里讨论下C++的多态以及实现原理。我都是在QT下使用C++的，就直接在QT下进行演示了</p>
+</blockquote>
+<h2 id="多态介绍"><a href="#多态介绍" class="headerlink" title="多态介绍"></a>多态介绍</h2><blockquote>
+<p>面向对象语言中最核心的几个理念就是：封装、继承、多态，其中我感觉多态是真正的核心，第一第二个只是它的辅助。同时多态又是不容易懂的，所以在这就简单的介绍下啦（虽然我也懂得不多，呵呵）</p>
+</blockquote>
+<h2 id="静态联编"><a href="#静态联编" class="headerlink" title="静态联编"></a>静态联编</h2><h3 id="第一个简单的小程序（重载的多态）"><a href="#第一个简单的小程序（重载的多态）" class="headerlink" title="第一个简单的小程序（重载的多态）"></a>第一个简单的小程序（重载的多态）</h3><figure class="highlight c"><figcaption><span>++</span><a href="/_codes/cpp/polymorphisn001.cpp">view raw</a></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QCoreApplication&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QDebug&gt;</span></span></div><div class="line"><span class="keyword">class</span> Person {</div><div class="line"><span class="keyword">public</span> :</div><div class="line">    <span class="keyword">int</span> age;</div><div class="line">    Person() : age(<span class="number">10</span>){}</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">getAge</span><span class="params">()</span> </span>{</div><div class="line">        qDebug() &lt;&lt; <span class="string">"Person: "</span> &lt;&lt; age;</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line"><span class="keyword">class</span> VellBibi : <span class="keyword">public</span> Person {</div><div class="line"><span class="keyword">public</span> :</div><div class="line">    <span class="keyword">int</span> age;</div><div class="line">    VellBibi() : age(<span class="number">21</span>){}</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">getAge</span><span class="params">()</span> </span>{</div><div class="line">        qDebug() &lt;&lt; <span class="string">"VellBibi: "</span> &lt;&lt; age;</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></span></div><div class="line">{</div><div class="line">    <span class="function">QCoreApplication <span class="title">a</span><span class="params">(argc, argv)</span></span>;</div><div class="line"></div><div class="line">    Person p;</div><div class="line">    p.getAge();</div><div class="line"></div><div class="line">    VellBibi v;</div><div class="line">    v.getAge();</div><div class="line"></div><div class="line">    Person *pPtr = &amp;v;</div><div class="line">    pPtr-&gt;getAge();</div><div class="line"></div><div class="line">    <span class="keyword">return</span> a.exec();</div><div class="line">}</div></pre></td></tr></table></figure>
+<h3 id="运行结果"><a href="#运行结果" class="headerlink" title="运行结果"></a>运行结果</h3><p><img src="/images/cpp/20140720184945.png" alt=""></p>
+<h3 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h3><blockquote>
+<p><code>VellBibi</code>类继承了<code>Person</code>类，<code>VellBibi</code>里重载了<code>Person</code>的<code>getAge()</code>方法，这样就实现了静态的多态，它的实现过程是在编译期间的。这种多态存在硬伤，就是当使用父类指针指向子类对象时，访问的是父类的东西，而不是子类的。这个算是C++的一个特性，在java里面就没有这个情况，因为java直接就是是动态联编，java的多态里面就不存在静态联编</p>
+</blockquote>
+<h2 id="动态联编"><a href="#动态联编" class="headerlink" title="动态联编"></a>动态联编</h2><h3 id="第二个简单的小程序（虚函数的多态）"><a href="#第二个简单的小程序（虚函数的多态）" class="headerlink" title="第二个简单的小程序（虚函数的多态）"></a>第二个简单的小程序（虚函数的多态）</h3><figure class="highlight c"><figcaption><span>++</span><a href="/_codes/cpp/polymorphisn002.cpp">view raw</a></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QCoreApplication&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QDebug&gt;</span></span></div><div class="line"><span class="keyword">class</span> Person {</div><div class="line"><span class="keyword">public</span> :</div><div class="line">    <span class="keyword">int</span> age;</div><div class="line">    Person() : age(<span class="number">10</span>){}</div><div class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">getAge</span><span class="params">()</span> </span>{</div><div class="line">        qDebug() &lt;&lt; <span class="string">"Person: "</span> &lt;&lt; age;</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line"><span class="keyword">class</span> VellBibi : <span class="keyword">public</span> Person {</div><div class="line"><span class="keyword">public</span> :</div><div class="line">    <span class="keyword">int</span> age;</div><div class="line">    VellBibi() : age(<span class="number">21</span>){}</div><div class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">getAge</span><span class="params">()</span> </span>{</div><div class="line">        qDebug() &lt;&lt; <span class="string">"VellBibi: "</span> &lt;&lt; age;</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></span></div><div class="line">{</div><div class="line">    <span class="function">QCoreApplication <span class="title">a</span><span class="params">(argc, argv)</span></span>;</div><div class="line"></div><div class="line">    Person p;</div><div class="line">    p.getAge();</div><div class="line"></div><div class="line">    VellBibi v;</div><div class="line">    v.getAge();</div><div class="line"></div><div class="line">    Person *pPtr = &amp;v;</div><div class="line">    pPtr-&gt;getAge();</div><div class="line"></div><div class="line">    <span class="keyword">return</span> a.exec();</div><div class="line">}</div></pre></td></tr></table></figure>
+<h3 id="运行结果-1"><a href="#运行结果-1" class="headerlink" title="运行结果"></a>运行结果</h3><p><img src="/images/cpp/20140720193228.png" alt=""></p>
+<h3 id="说明-1"><a href="#说明-1" class="headerlink" title="说明"></a>说明</h3><blockquote>
+<p>这个小程序和上一个一样，唯一变得就是在<code>Person</code>的<code>getAge()</code>方法前加了一个<code>virtual</code>关键字，<code>VellBibi</code>可加可不加，但最好加上。在C++中<code>virtual</code>关键字就是用来声明虚函数的，所谓虚函数就是虚的函数嘛，呵呵，就是这个函数不是在编译期间就确定下来了，而是在运行期间动态指定的。这就是导致这个小程序和上个小程序的运行结果不同的原因，当使用父类指针指向子类对象时，调用父类虚函数时系统会自动寻找到子类对象的函数。  </p>
+<p>接下来介绍下C++是怎么实现这个动态指定过程的</p>
+</blockquote>
+<h2 id="多态的实现"><a href="#多态的实现" class="headerlink" title="多态的实现"></a>多态的实现</h2><h3 id="第三个小程序（静态联编时对象的大小）"><a href="#第三个小程序（静态联编时对象的大小）" class="headerlink" title="第三个小程序（静态联编时对象的大小）"></a>第三个小程序（静态联编时对象的大小）</h3><figure class="highlight c"><figcaption><span>++</span><a href="/_codes/cpp/polymorphisn003.cpp">view raw</a></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QCoreApplication&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QDebug&gt;</span></span></div><div class="line"><span class="keyword">class</span> Person {</div><div class="line"><span class="keyword">public</span> :</div><div class="line">    <span class="keyword">int</span> age;</div><div class="line">    Person() : age(<span class="number">10</span>){}</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">getAge</span><span class="params">()</span> </span>{</div><div class="line">        qDebug() &lt;&lt; <span class="string">"Person: "</span> &lt;&lt; age;</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line"><span class="keyword">class</span> VellBibi : <span class="keyword">public</span> Person {</div><div class="line"><span class="keyword">public</span> :</div><div class="line">    <span class="keyword">int</span> age;</div><div class="line">    VellBibi() : age(<span class="number">21</span>){}</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">getAge</span><span class="params">()</span> </span>{</div><div class="line">        qDebug() &lt;&lt; <span class="string">"VellBibi: "</span> &lt;&lt; age;</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></span></div><div class="line">{</div><div class="line">    <span class="function">QCoreApplication <span class="title">a</span><span class="params">(argc, argv)</span></span>;</div><div class="line"></div><div class="line">    Person p;</div><div class="line">    p.getAge();</div><div class="line"></div><div class="line">    VellBibi v;</div><div class="line">    v.getAge();</div><div class="line"></div><div class="line">    Person *pPtr = &amp;v;</div><div class="line">    pPtr-&gt;getAge();</div><div class="line"></div><div class="line">    qDebug() &lt;&lt; <span class="string">"PersonSize: "</span> &lt;&lt; <span class="keyword">sizeof</span>(p);</div><div class="line">    qDebug() &lt;&lt; <span class="string">"VellBibiSize: "</span> &lt;&lt; <span class="keyword">sizeof</span>(v);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> a.exec();</div><div class="line">}</div></pre></td></tr></table></figure>
+<h3 id="运行结果-2"><a href="#运行结果-2" class="headerlink" title="运行结果"></a>运行结果</h3><p><img src="/images/cpp/20140720195721.png" alt=""></p>
+<h3 id="说明-2"><a href="#说明-2" class="headerlink" title="说明"></a>说明</h3><blockquote>
+<p>这个程序只是在第一个程序上加了<code>sizeof()</code>，看出来了神马？<code>Person</code>是4个字节，也就是<code>int age;</code>的字节数；<code>VellBibi</code>是8个字节，其实就是<code>Person</code>的字节数加上<code>VellBibi</code>的<code>int age;</code>的字节数。</p>
+</blockquote>
+<h3 id="第四个小程序（动态联编时对象的大小）"><a href="#第四个小程序（动态联编时对象的大小）" class="headerlink" title="第四个小程序（动态联编时对象的大小）"></a>第四个小程序（动态联编时对象的大小）</h3><figure class="highlight c"><figcaption><span>++</span><a href="/_codes/cpp/polymorphisn004.cpp">view raw</a></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QCoreApplication&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QDebug&gt;</span></span></div><div class="line"><span class="keyword">class</span> Person {</div><div class="line"><span class="keyword">public</span> :</div><div class="line">    <span class="keyword">int</span> age;</div><div class="line">    Person() : age(<span class="number">10</span>){}</div><div class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">getAge</span><span class="params">()</span> </span>{</div><div class="line">        qDebug() &lt;&lt; <span class="string">"Person: "</span> &lt;&lt; age;</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line"><span class="keyword">class</span> VellBibi : <span class="keyword">public</span> Person {</div><div class="line"><span class="keyword">public</span> :</div><div class="line">    <span class="keyword">int</span> age;</div><div class="line">    VellBibi() : age(<span class="number">21</span>){}</div><div class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">getAge</span><span class="params">()</span> </span>{</div><div class="line">        qDebug() &lt;&lt; <span class="string">"VellBibi: "</span> &lt;&lt; age;</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></span></div><div class="line">{</div><div class="line">    <span class="function">QCoreApplication <span class="title">a</span><span class="params">(argc, argv)</span></span>;</div><div class="line"></div><div class="line">    Person p;</div><div class="line">    p.getAge();</div><div class="line"></div><div class="line">    VellBibi v;</div><div class="line">    v.getAge();</div><div class="line"></div><div class="line">    Person *pPtr = &amp;v;</div><div class="line">    pPtr-&gt;getAge();</div><div class="line"></div><div class="line">    qDebug() &lt;&lt; <span class="string">"PersonSize: "</span> &lt;&lt; <span class="keyword">sizeof</span>(p);</div><div class="line">    qDebug() &lt;&lt; <span class="string">"VellBibiSize: "</span> &lt;&lt; <span class="keyword">sizeof</span>(v);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> a.exec();</div><div class="line">}</div></pre></td></tr></table></figure>
+<h3 id="运行结果-3"><a href="#运行结果-3" class="headerlink" title="运行结果"></a>运行结果</h3><p><img src="/images/cpp/20140720200532.png" alt=""></p>
+<h3 id="说明-3"><a href="#说明-3" class="headerlink" title="说明"></a>说明</h3><blockquote>
+<p>这个程序只是在第二个程序上加了<code>sizeof()</code>，这时会发现<code>Person</code>变8个字节了，为神马呢？这是两个int型的大小啊，why？好了不卖关子了，这是静态<code>Person</code>的大小加上一个指针的大小，那哪来的指针呢？在<code>Person</code>里面也没有定义啊！呵呵，这是C++编译器自动加上的，加上用来动态指定的，只要存在<code>virtual</code>关键字的类最上面都是有一个这样的指针，指向一个<code>vtable</code>虚拟表，里面记录着这个类所有包含的虚函数地址。  </p>
+</blockquote>
+<h2 id="动态联编内存示例图："><a href="#动态联编内存示例图：" class="headerlink" title="动态联编内存示例图："></a>动态联编内存示例图：</h2><p><img src="/images/cpp/20140720205730.png" alt=""></p>
+<h3 id="第五个小程序（动态联编内存分析）"><a href="#第五个小程序（动态联编内存分析）" class="headerlink" title="第五个小程序（动态联编内存分析）"></a>第五个小程序（动态联编内存分析）</h3><figure class="highlight c"><figcaption><span>++</span><a href="/_codes/cpp/polymorphisn005.cpp">view raw</a></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QCoreApplication&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QDebug&gt;</span></span></div><div class="line"><span class="keyword">class</span> Person {</div><div class="line"><span class="keyword">public</span> :</div><div class="line">    <span class="keyword">int</span> age;</div><div class="line">    Person() : age(<span class="number">10</span>){}</div><div class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">getAge</span><span class="params">()</span> </span>{</div><div class="line">        qDebug() &lt;&lt; <span class="string">"Person: "</span> &lt;&lt; age;</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line"><span class="keyword">class</span> VellBibi : <span class="keyword">public</span> Person {</div><div class="line"><span class="keyword">public</span> :</div><div class="line">    <span class="keyword">int</span> age;</div><div class="line">    VellBibi() : age(<span class="number">21</span>){}</div><div class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">getAge</span><span class="params">()</span> </span>{</div><div class="line">        qDebug() &lt;&lt; <span class="string">"VellBibi: "</span> &lt;&lt; age;</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></span></div><div class="line">{</div><div class="line">    <span class="function">QCoreApplication <span class="title">a</span><span class="params">(argc, argv)</span></span>;</div><div class="line"></div><div class="line">    Person p;</div><div class="line">    VellBibi v;</div><div class="line"></div><div class="line">    <span class="keyword">int</span> *pfv = (<span class="keyword">int</span> *)&amp;p;</div><div class="line">    <span class="keyword">int</span> *vfv = (<span class="keyword">int</span> *)&amp;v;</div><div class="line">    qDebug() &lt;&lt; <span class="string">"PersonFirstValue: "</span> &lt;&lt; *pfv;</div><div class="line">    qDebug() &lt;&lt; <span class="string">"VellBibiFirstValue: "</span> &lt;&lt; *vfv;</div><div class="line"></div><div class="line">    qDebug() &lt;&lt; <span class="string">"PersonSecondValue: "</span> &lt;&lt; *(pfv + <span class="number">1</span>);</div><div class="line">    qDebug() &lt;&lt; <span class="string">"VellBibiSecondValue: "</span> &lt;&lt; *(vfv + <span class="number">1</span>);</div><div class="line"></div><div class="line">    qDebug() &lt;&lt; <span class="string">"PersonThirdValue: "</span> &lt;&lt; *(pfv + <span class="number">2</span>);</div><div class="line">    qDebug() &lt;&lt; <span class="string">"VellBibiSThirdValue: "</span> &lt;&lt; *(vfv + <span class="number">2</span>);</div><div class="line"></div><div class="line">    <span class="keyword">int</span> *pt = (<span class="keyword">int</span> *)*pfv;</div><div class="line">    <span class="keyword">int</span> *vt = (<span class="keyword">int</span> *)*vfv;</div><div class="line">    qDebug() &lt;&lt; <span class="string">"PersonVTableFirstValue: "</span> &lt;&lt; *pt;</div><div class="line">    qDebug() &lt;&lt; <span class="string">"VellBibiVTableFirstValue: "</span> &lt;&lt; *vt;</div><div class="line"></div><div class="line">    qDebug() &lt;&lt; <span class="string">"PersonVTableSecondValue: "</span> &lt;&lt; *(pt + <span class="number">1</span>);</div><div class="line">    qDebug() &lt;&lt; <span class="string">"VellBibiVTableSecondValue: "</span> &lt;&lt; *(vt + <span class="number">1</span>);</div><div class="line">    <span class="keyword">return</span> a.exec();</div><div class="line">}</div></pre></td></tr></table></figure>
+<h3 id="运行结果-4"><a href="#运行结果-4" class="headerlink" title="运行结果"></a>运行结果</h3><p><img src="/images/cpp/20140720210041.png" alt=""></p>
+<h3 id="说明-4"><a href="#说明-4" class="headerlink" title="说明"></a>说明</h3><blockquote>
+<p>将对象第地址强制转换成int型指针来探寻对象内部数据的情况。前两行是对象的头地址的值，很明显这是一个指针；3、4行是第二个值，都是<code>Person</code>的<code>int age;</code>变量； 5行是一个随机值，说明<code>Person</code>对象里面其实就只有一个<code>int age;</code>变量而已，其实在C++中类的实现也就是一个C语言的struct而已。再将头地址指向的<code>vtable</code>里的值取出来看看，7、8行就是各自<code>vtable</code>的第一个值，可以看出还是一个指针，指向的肯定是代码段相对应的函数啦~这两个指针指向了不同的函数，这也就是动态联编啦~当然还需要一个程序来说明，等会再说；再看看9、10行，都是0，也就是<code>NULL</code>很好理解，是不是似曾相识啊，没错就是字符串里的结束符啦！</p>
+</blockquote>
+<h3 id="第六个小程序（动态联编的美妙）"><a href="#第六个小程序（动态联编的美妙）" class="headerlink" title="第六个小程序（动态联编的美妙）"></a>第六个小程序（动态联编的美妙）</h3><figure class="highlight c"><figcaption><span>++</span><a href="/_codes/cpp/polymorphisn006.cpp">view raw</a></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QCoreApplication&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QDebug&gt;</span></span></div><div class="line"><span class="keyword">class</span> Person {</div><div class="line"><span class="keyword">public</span> :</div><div class="line">    <span class="keyword">int</span> age;</div><div class="line">    Person() : age(<span class="number">10</span>){}</div><div class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">getAge</span><span class="params">()</span> </span>{</div><div class="line">        qDebug() &lt;&lt; <span class="string">"Person: "</span> &lt;&lt; age;</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line"><span class="keyword">class</span> VellBibi : <span class="keyword">public</span> Person {</div><div class="line"><span class="keyword">public</span> :</div><div class="line">    <span class="keyword">int</span> age;</div><div class="line">    VellBibi() : age(<span class="number">21</span>){}</div><div class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">getAge</span><span class="params">()</span> </span>{</div><div class="line">        qDebug() &lt;&lt; <span class="string">"VellBibi: "</span> &lt;&lt; age;</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></span></div><div class="line">{</div><div class="line">    <span class="function">QCoreApplication <span class="title">a</span><span class="params">(argc, argv)</span></span>;</div><div class="line"></div><div class="line">    Person p;</div><div class="line">    VellBibi v;</div><div class="line">    Person *vp = &amp;v;</div><div class="line"></div><div class="line">    <span class="keyword">int</span> *pfv = (<span class="keyword">int</span> *)&amp;p;</div><div class="line">    <span class="keyword">int</span> *vfv = (<span class="keyword">int</span> *)vp;</div><div class="line">    qDebug() &lt;&lt; <span class="string">"PersonFirstValue: "</span> &lt;&lt; *pfv;</div><div class="line">    qDebug() &lt;&lt; <span class="string">"VellBibiFirstValue: "</span> &lt;&lt; *vfv;</div><div class="line">    qDebug();</div><div class="line"></div><div class="line">    qDebug() &lt;&lt; <span class="string">"PersonSecondValue: "</span> &lt;&lt; *(pfv + <span class="number">1</span>);</div><div class="line">    qDebug() &lt;&lt; <span class="string">"VellBibiSecondValue: "</span> &lt;&lt; *(vfv + <span class="number">1</span>);</div><div class="line">    qDebug();</div><div class="line"></div><div class="line">    qDebug() &lt;&lt; <span class="string">"PersonThirdValue: "</span> &lt;&lt; *(pfv + <span class="number">2</span>);</div><div class="line">    qDebug() &lt;&lt; <span class="string">"VellBibiSThirdValue: "</span> &lt;&lt; *(vfv + <span class="number">2</span>);</div><div class="line">    qDebug();</div><div class="line"></div><div class="line">    <span class="keyword">int</span> *pt = (<span class="keyword">int</span> *)*pfv;</div><div class="line">    <span class="keyword">int</span> *vt = (<span class="keyword">int</span> *)*vfv;</div><div class="line">    qDebug() &lt;&lt; <span class="string">"PersonVTableFirstValue: "</span> &lt;&lt; *pt;</div><div class="line">    qDebug() &lt;&lt; <span class="string">"VellBibiVTableFirstValue: "</span> &lt;&lt; *vt;</div><div class="line">    qDebug();</div><div class="line"></div><div class="line">    qDebug() &lt;&lt; <span class="string">"PersonVTableSecondValue: "</span> &lt;&lt; *(pt + <span class="number">1</span>);</div><div class="line">    qDebug() &lt;&lt; <span class="string">"VellBibiVTableSecondValue: "</span> &lt;&lt; *(vt + <span class="number">1</span>);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> a.exec();</div><div class="line">}</div></pre></td></tr></table></figure>
+<h3 id="运行结果-5"><a href="#运行结果-5" class="headerlink" title="运行结果"></a>运行结果</h3><p><img src="/images/cpp/20140720212350.png" alt=""></p>
+<h3 id="说明-5"><a href="#说明-5" class="headerlink" title="说明"></a>说明</h3><blockquote>
+<p>这个应该很好理解了，只是定义了一个<code>Person</code>的指针<code>vp</code>，指向了<code>VellBibi</code>的对象<code>v</code>，然后将<code>&amp;v</code>换成了<code>vp</code>，其他的都没变；也就是使用父类指针指向子类对象，结果可以看出和第五个程序是一样的，说明了C++的动态联编。</p>
+</blockquote>
+<h2 id="来道分析题"><a href="#来道分析题" class="headerlink" title="来道分析题"></a>来道分析题</h2><h3 id="第七个小程序（问题代码）"><a href="#第七个小程序（问题代码）" class="headerlink" title="第七个小程序（问题代码）"></a>第七个小程序（问题代码）</h3><figure class="highlight c"><figcaption><span>++</span><a href="/_codes/cpp/polymorphisn007.cpp">view raw</a></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QCoreApplication&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QDebug&gt;</span></span></div><div class="line"><span class="keyword">class</span> Person {</div><div class="line"><span class="keyword">public</span> :</div><div class="line">    <span class="keyword">int</span> age;</div><div class="line">    Person() : age(<span class="number">10</span>){}</div><div class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">getAge</span><span class="params">()</span> </span>{</div><div class="line">        qDebug() &lt;&lt; <span class="string">"Person: "</span> &lt;&lt; age;</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line"><span class="keyword">class</span> VellBibi : <span class="keyword">public</span> Person {</div><div class="line"><span class="keyword">public</span> :</div><div class="line">    <span class="keyword">int</span> suiShu;</div><div class="line">    VellBibi() : suiShu(<span class="number">21</span>){}</div><div class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">getAge</span><span class="params">()</span> </span>{</div><div class="line">        qDebug() &lt;&lt; <span class="string">"VellBibi: "</span> &lt;&lt; suiShu;</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></span></div><div class="line">{</div><div class="line">    <span class="function">QCoreApplication <span class="title">a</span><span class="params">(argc, argv)</span></span>;</div><div class="line"></div><div class="line">    Person p;</div><div class="line">    VellBibi v;</div><div class="line"></div><div class="line">    Person *pptr = &amp;p;</div><div class="line"></div><div class="line">    <span class="keyword">int</span> *pp = (<span class="keyword">int</span> *)&amp;p;</div><div class="line">    <span class="keyword">int</span> *vp = (<span class="keyword">int</span> *)&amp;v;</div><div class="line"></div><div class="line">    *pp = *vp;</div><div class="line"></div><div class="line">    pptr-&gt;getAge();</div><div class="line"></div><div class="line">    <span class="keyword">return</span> a.exec();</div><div class="line">}</div></pre></td></tr></table></figure>
+<h3 id="运行结果-6"><a href="#运行结果-6" class="headerlink" title="运行结果"></a>运行结果</h3><p><img src="/images/cpp/20140720220656.png" alt=""></p>
+<h3 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h3><blockquote>
+<p>结果可以看出该打印的<code>suiShu</code>变随机数了；我这里使用了点小计俩，我先将对象的头地址当做int看待，然后将<code>VellBibi</code>对象的头地址赋值给了<code>Person</code>对象，最后使用<code>Person</code>对象的指针去调它自己的函数，会发现出错了。上内存分析图吧:  </p>
+</blockquote>
+<h4 id="没有改变Person对象头指针"><a href="#没有改变Person对象头指针" class="headerlink" title="没有改变Person对象头指针"></a>没有改变Person对象头指针</h4><p><img src="/images/cpp/20140720221920.png" alt=""></p>
+<h4 id="改变了Person对象头指针后"><a href="#改变了Person对象头指针后" class="headerlink" title="改变了Person对象头指针后"></a>改变了Person对象头指针后</h4><p><img src="/images/cpp/20140720222807.png" alt=""></p>
+<blockquote>
+<p>继续分析，<code>Person</code>对象的<code>vtable</code>指针指向了<code>VellBibi</code>的<code>vtable</code>，当使用指针去访问时虚函数时就会做动态联编，<code>Person</code>对象会找到<code>VellBibi</code>的<code>vtable</code>然后找到了<code>VellBibi</code>的<code>getAge()</code>,而<code>VellBibi</code>的<code>getAge()</code>回去调它自己的变量也就是<code>suishu</code>变量，这下就出问题了，<code>Person</code>对象哪来的<code>suishu</code>变量？所以就系统就在那个不是<code>Person</code>对象内容的地方取了个值，当然这是随机的啦</p>
+</blockquote>
+<hr>
+<p>结束语</p>
+<blockquote>
+<p>写这篇帖子是为了明天实习的每人一讲啦~不过更是一种分享，我是从别人那得到的这份知识，想更好的让更多的人去收获这份知识，这就是分享的意义；当得知我做的努力给别人带来了帮助，我会非常高兴，这就是分享的乐趣。一起分享一起学习，Come on~~~</p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;blockquote&gt;
+&lt;p&gt;借着这次学校的生产实习来回顾下C++的多态，这里讨论下C++的多态以及实现原理。我都是在QT下使用C++的，就直接
+    
+    </summary>
+    
+      <category term="C/C++" scheme="http://vell001.ml/categories/C-C/"/>
+    
+    
+      <category term="C/C++" scheme="http://vell001.ml/tags/C-C/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>一些git的小知识</title>
+    <link href="http://vell001.ml/2014/07/09/some-git-knowledges.html"/>
+    <id>http://vell001.ml/2014/07/09/some-git-knowledges.html</id>
+    <published>2014-07-09T15:22:45.000Z</published>
+    <updated>2014-07-09T15:22:45.000Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote>
+<p>在这简单列举下git常用的命令，更多关于git的介绍可以参考下：【<a href="http://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000/00137402760310626208b4f695940a49e5348b689d095fc000" target="_blank" rel="external">廖雪峰的官方网站</a>】</p>
+</blockquote>
+<h2 id="git简介"><a href="#git简介" class="headerlink" title="git简介"></a>git简介</h2><p><img src="/images/git_img_001.jpg" alt=""></p>
+<blockquote>
+<p>Git是用于Linux内核开发的版本控制工具。与CVS、Subversion一类的集中式版本控制工具不同，它采用了分布式版本库的作法，不需要服务器端软件，就可以运作版本控制，使得源代码的发布和交流极其方便。Git的速度很快，这对于诸如Linux内核这样的大项目来说自然很重要。Git最为出色的是它的合并追踪（merge tracing）能力。【<a href="http://baike.baidu.com/subview/1531489/12032477.htm" target="_blank" rel="external">更多</a>】  </p>
+</blockquote>
+<h2 id="常用的命令"><a href="#常用的命令" class="headerlink" title="常用的命令"></a>常用的命令</h2><h3 id="设置全局的用户名和email"><a href="#设置全局的用户名和email" class="headerlink" title="设置全局的用户名和email"></a>设置全局的用户名和email</h3><blockquote>
+<p><code>git config --global user.name &quot;yourname&quot;</code><br><code>git config --global user.email &quot;youremail&quot;</code>  </p>
+</blockquote>
+<h3 id="缓存文件（添加文件到缓存区）"><a href="#缓存文件（添加文件到缓存区）" class="headerlink" title="缓存文件（添加文件到缓存区）"></a>缓存文件（添加文件到缓存区）</h3><blockquote>
+<p><code>git add .</code> : 添加当前文件夹下所有文件<br><code>git add -A</code> : 添加当前文件夹下所有文件，包括删除操作  </p>
+</blockquote>
+<h3 id="提交版本（提交缓存区的文件到版本库）"><a href="#提交版本（提交缓存区的文件到版本库）" class="headerlink" title="提交版本（提交缓存区的文件到版本库）"></a>提交版本（提交缓存区的文件到版本库）</h3><blockquote>
+<p><code>git commit -m &quot;your message&quot;</code></p>
+</blockquote>
+<h3 id="推送到远程（一般用于推送到代码托管服务器）"><a href="#推送到远程（一般用于推送到代码托管服务器）" class="headerlink" title="推送到远程（一般用于推送到代码托管服务器）"></a>推送到远程（一般用于推送到代码托管服务器）</h3><blockquote>
+<p><code>git push origin master</code> : 将当前版本库中的master分支推送到origin上<br><code>git push -u origin master</code> : -u作用是第一次推送时用于建立远程关联<br><code>git push origin master --force</code> : 强制把当前版本库推送给远程（有一定的风险，要是在此期间同时别人提交了最新代码，这部分代码将丢失），一般用于回滚远程版本库  </p>
+</blockquote>
+<h3 id="克隆远程版本库"><a href="#克隆远程版本库" class="headerlink" title="克隆远程版本库"></a>克隆远程版本库</h3><blockquote>
+<p><code>git clone git@github.com:yourname/yourproject.git</code> : 从<em>git@github.com:yourname/yourproject.git</em>这个地址上克隆，一般有<em>https</em>和<em>ssh</em>两种版本库访问方式</p>
+</blockquote>
+<h3 id="切换分支"><a href="#切换分支" class="headerlink" title="切换分支"></a>切换分支</h3><blockquote>
+<p><code>git checkout yourbranch</code> : 切换到<em>yourbranch</em>分支上<br><code>git checkout -b yourbranch</code> : 创建<em>yourbranch</em>分支并切换</p>
+</blockquote>
+<h3 id="合并分支"><a href="#合并分支" class="headerlink" title="合并分支"></a>合并分支</h3><blockquote>
+<p><code>git merge yourbranch</code> : 合并<em>yourbranch</em>分支到当前分支上</p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;在这简单列举下git常用的命令，更多关于git的介绍可以参考下：【&lt;a href=&quot;http://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000
+    
+    </summary>
+    
+      <category term="git" scheme="http://vell001.ml/categories/git/"/>
+    
+    
+      <category term="git" scheme="http://vell001.ml/tags/git/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>第一个完整的QT程序</title>
+    <link href="http://vell001.ml/2014/06/30/first-qt-project.html"/>
+    <id>http://vell001.ml/2014/06/30/first-qt-project.html</id>
+    <published>2014-06-30T15:45:26.000Z</published>
+    <updated>2014-06-30T15:45:26.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="VCalculator"><a href="#VCalculator" class="headerlink" title="VCalculator"></a>VCalculator</h2><p>#基于QT4的简易计算器</p>
+<blockquote>
+<p>实现了简单的加减乘除  </p>
+</blockquote>
+<p>#前言</p>
+<blockquote>
+<p>今天开始学习QT了，其实我大一就开始接触QT了，当时只是好奇，没有做过任何深入的学习，这次蹭学校的实习，赶紧好好学学神奇的QT。<br>学校是用QT4来教学的，我暂时使用QT4了，QT5貌似有很多库文件位置变了，暂且不管了。<br>今天下午开始真正写代码，老师讲的真是太精简了，精简到等于没讲啊！还好看懂了官方的帮助文档，上面有一个计算器的小例子，老师就是先要求写一个简单的加法，最后实现一个稍难的计算器<br>下午由零开始写代码，完全自学（老师没起任何作用啊），了解了信号、槽的概念，完成了计算器的编写，开心的放上效果图和源代码啦！！！  </p>
+</blockquote>
+<p>#效果图<br><img src="/images/QT/20140630235508.png" alt=""></p>
+<p>#源代码<br>github:<a href="https://github.com/vell001/VCalculator" target="_blank" rel="external">VCalculator</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;VCalculator&quot;&gt;&lt;a href=&quot;#VCalculator&quot; class=&quot;headerlink&quot; title=&quot;VCalculator&quot;&gt;&lt;/a&gt;VCalculator&lt;/h2&gt;&lt;p&gt;#基于QT4的简易计算器&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;实
+    
+    </summary>
+    
+      <category term="QT" scheme="http://vell001.ml/categories/QT/"/>
+    
+    
+      <category term="C/C++" scheme="http://vell001.ml/tags/C-C/"/>
+    
+      <category term="QT" scheme="http://vell001.ml/tags/QT/"/>
+    
+      <category term="VCalculator" scheme="http://vell001.ml/tags/VCalculator/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>使用webIDE搭建hexo博客环境</title>
+    <link href="http://vell001.ml/2014/05/21/use-webide.html"/>
+    <id>http://vell001.ml/2014/05/21/use-webide.html</id>
+    <published>2014-05-21T12:08:20.000Z</published>
+    <updated>2014-05-21T12:08:20.000Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote>
+<p><em>webIDE</em>就是一个在浏览器里面的集成开发环境，实现云开发，不在纠结于电脑的环境配置了，直接云配置啦！<br>我今天发现一个非常好的webIDE：<a href="https://www.nitrous.io" target="_blank" rel="external">nitrous</a>，它提供了多钟语言支持：Node.js、Python、Go、Rails、PHP，下来就开始玩玩它啦</p>
+</blockquote>
+<h2 id="我为啥玩webIDE"><a href="#我为啥玩webIDE" class="headerlink" title="我为啥玩webIDE"></a>我为啥玩webIDE</h2><blockquote>
+<p>我前段时间接触到hexo博客系统，感觉非常好啊，我的个人博客<a href="http://vblog.vell001.ml" target="_blank" rel="external">vblog</a>就是hexo的产物。<br>hexo是node.js写的，配置node.js环境比较费劲，特别是在windows下，简直是中折磨。我个人在linux和windows环境间切换工作的频率比较高，我需要两边都配置好环境，太费劲了。于是想到在webIDE里搭建一个hexo环境，这样就非常省事了。相当于有一台电脑在云端，只要通过web就可以完全访问，于是乎玩上了nitrous。  </p>
+</blockquote>
+<h2 id="nitrous简介"><a href="#nitrous简介" class="headerlink" title="nitrous简介"></a>nitrous简介</h2><blockquote>
+<p>nitrous可以免费创建<em>box</em>， 一个box就是一个简化的linux系统啦，就是没有root权限而已。<br>nitrous带了一个很给力的IDE界面，文本编辑器太好用了</p>
+</blockquote>
+<h2 id="安装hexo"><a href="#安装hexo" class="headerlink" title="安装hexo"></a>安装hexo</h2><blockquote>
+<p>直接<code>npm install hexo -g</code>，我这不到2分钟就安装完了</p>
+</blockquote>
+<h2 id="获取我的博客源文件"><a href="#获取我的博客源文件" class="headerlink" title="获取我的博客源文件"></a>获取我的博客源文件</h2><blockquote>
+<p>使用<code>git clone</code>，导入我的博客源文件，速度还行，基本保持在了400k/s的样子</p>
+</blockquote>
+<h2 id="接着就是正常写博客啦，总结下吧"><a href="#接着就是正常写博客啦，总结下吧" class="headerlink" title="接着就是正常写博客啦，总结下吧"></a>接着就是正常写博客啦，总结下吧</h2><blockquote>
+<p>webIDE潜力很大啊，只要一个有网的地方就能轻松做开发，我这只是小试牛刀而已；<br>不过安全性就无从知晓了，搞点小开发还是可以的，中大型项目还是自建局域网吧！</p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;webIDE&lt;/em&gt;就是一个在浏览器里面的集成开发环境，实现云开发，不在纠结于电脑的环境配置了，直接云配置啦！&lt;br&gt;我今天发现一个非常好的webIDE：&lt;a href=&quot;https://www.nitrous.io&quot; target=&quot;_
+    
+    </summary>
+    
+      <category term="hexo" scheme="http://vell001.ml/categories/hexo/"/>
+    
+    
+      <category term="hexo" scheme="http://vell001.ml/tags/hexo/"/>
+    
+      <category term="webIDE" scheme="http://vell001.ml/tags/webIDE/"/>
+    
+      <category term="nitrous" scheme="http://vell001.ml/tags/nitrous/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>简单选择开源许可证</title>
+    <link href="http://vell001.ml/2014/05/21/free-software-licenses.html"/>
+    <id>http://vell001.ml/2014/05/21/free-software-licenses.html</id>
+    <published>2014-05-21T11:08:20.000Z</published>
+    <updated>2014-05-21T11:08:20.000Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote>
+<p>当你的代码想开源，你将如何选择许可证呢？</p>
+</blockquote>
+<p>世界上有各种各样的许可证，这边搬出来六个做个对比，让你最快的选择合适的开源许可证</p>
+<p>找出来了一张我特别喜欢，特别能说明问题的图片，看完了你的许可证已经非常确定了吧，上图：<br><img src="/images/free_software_licenses.png" alt=""></p>
+<p><strong>一般人我不告诉他哦~~~</strong></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;当你的代码想开源，你将如何选择许可证呢？&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;世界上有各种各样的许可证，这边搬出来六个做个对比，让你最快的选择合适的开源许可证&lt;/p&gt;
+&lt;p&gt;找出来了一张我特别喜欢，特别能说明问题的图片，看完了你的许可证已经非
+    
+    </summary>
+    
+      <category term="other" scheme="http://vell001.ml/categories/other/"/>
+    
+    
+      <category term="licenses" scheme="http://vell001.ml/tags/licenses/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>完全DIY的新软件：ToDo</title>
+    <link href="http://vell001.ml/2014/05/21/publish-todo.html"/>
+    <id>http://vell001.ml/2014/05/21/publish-todo.html</id>
+    <published>2014-05-20T16:02:41.000Z</published>
+    <updated>2014-05-20T16:02:41.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="ToDo简介"><a href="#ToDo简介" class="headerlink" title="ToDo简介"></a>ToDo简介</h2><blockquote>
+<p>ToDo是一个开源跨平台的时间管理软件，有两大功能：  </p>
+<ol>
+<li>备忘录功能，定时提醒  </li>
+<li>定时锁屏功能，默认每隔2小时自动将电脑锁屏（不是休眠），你无法操作电脑做任何工作，休息五分钟后自动解锁，强迫玩电脑时间长的你休息一下啦！  </li>
+</ol>
+</blockquote>
+<h2 id="为啥会有ToDo"><a href="#为啥会有ToDo" class="headerlink" title="为啥会有ToDo"></a>为啥会有ToDo</h2><blockquote>
+<ol>
+<li>因为我自己玩电脑时间比较长，常常玩起电脑来忘了时间，所以需要一个备忘录软件  </li>
+<li>玩时间长对眼睛不好，所以需要一个定时让我休息的软件  </li>
+<li>由于我经常在linux和windows平台之间切换工作，所以需要一个完全跨平台的时间管理软件，这样更统一  </li>
+<li>我相信会有很多像我这样需要ToDo这款软件的人  </li>
+</ol>
+</blockquote>
+<h2 id="庐山真面目"><a href="#庐山真面目" class="headerlink" title="庐山真面目"></a>庐山真面目</h2><p>###centos下的效果：<br><img src="/images/todo/20140520232222.png" alt=""><br><img src="/images/todo/20140520232318.png" alt=""><br><img src="/images/todo/20140520232341.png" alt=""><br><img src="/images/todo/20140520233418.png" alt="">  </p>
+<p>###windows下的效果：<br><img src="/images/todo/20140520232411.png" alt=""><br><img src="/images/todo/20140520232422.png" alt=""><br><img src="/images/todo/20140520232432.png" alt=""><br><img src="/images/todo/20140520233313.png" alt=""><br><img src="/images/todo/20140520235759.png" alt="">  </p>
+<h2 id="v002-1更新内容"><a href="#v002-1更新内容" class="headerlink" title="v002.1更新内容"></a>v002.1更新内容</h2><ol>
+<li>更完整的中英支持<br><img src="/images/todo/20140530130326.png" alt=""><br><img src="/images/todo/20140530130435.png" alt=""><br><img src="/images/todo/20140530130458.png" alt="">  </li>
+<li>添加锁屏倒计时的推迟按钮，能推迟锁屏<br><img src="/images/todo/20140530134845.png" alt="">  </li>
+</ol>
+<h2 id="软件下载使用"><a href="#软件下载使用" class="headerlink" title="软件下载使用"></a>软件下载使用</h2><h3 id="下载地址"><a href="#下载地址" class="headerlink" title="下载地址"></a>下载地址</h3><blockquote>
+<p><a href="https://github.com/vell001/ToDo/tree/master/release" target="_blank" rel="external">当前最新版v002.1</a><br><a href="https://github.com/vell001/ToDo" target="_blank" rel="external">源代码地址</a></p>
+</blockquote>
+<h3 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h3><p><strong>运行前提</strong>：系统必须正确安装有JRE/JDK环境，没有的自行百度啦~  </p>
+<p>在<code>release</code>文件夹下有这些文件：run.bat、run.sh、todo_x32.exe、todo_x64.exe、ToDo002.jar  </p>
+<ol>
+<li>Windows: <ol>
+<li>选择对应系统的<code>.exe</code>文件运行，推荐建立快捷方式到桌面上</li>
+<li>点击run.bat运行</li>
+</ol>
+</li>
+<li>Linux / MacOS<ol>
+<li>终端执行<code>chmod a+x run.sh</code>，后<code>./run.sh&amp;</code></li>
+<li>直接<code>bash run.sh&amp;</code></li>
+<li>甚至直接<code>java -jar ToDo002.jar</code></li>
+</ol>
+</li>
+</ol>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;ToDo简介&quot;&gt;&lt;a href=&quot;#ToDo简介&quot; class=&quot;headerlink&quot; title=&quot;ToDo简介&quot;&gt;&lt;/a&gt;ToDo简介&lt;/h2&gt;&lt;blockquote&gt;
+&lt;p&gt;ToDo是一个开源跨平台的时间管理软件，有两大功能：  &lt;/p&gt;
+&lt;ol&gt;
+&lt;li
+    
+    </summary>
+    
+      <category term="java" scheme="http://vell001.ml/categories/java/"/>
+    
+    
+      <category term="java" scheme="http://vell001.ml/tags/java/"/>
+    
+      <category term="ToDo" scheme="http://vell001.ml/tags/ToDo/"/>
+    
+  </entry>
+  
+</feed>

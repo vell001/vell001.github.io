@@ -1,0 +1,906 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="algorithm,java," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="VBlog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="java 复习002java东西太多了，我都有点小凌乱了，记得太没结构了  
+java内存回收机制：垃圾收集GC（Garbage Collection）两种常用方法：  
+
+引用计数（早期使用）
+
+简介：堆中对象每次被栈中引用指向时，它的引用计数就加一，引用被删除时就减一；当引用计数为0的时候就被回收
+优点：操作简单，运行很快，在实时环境中比较有利
+缺点：容易出现循环引用（当A对象中有B对象的引用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java 复习002">
+<meta property="og:url" content="http://vell001.ml/2014/04/12/java_review002.html">
+<meta property="og:site_name" content="VBlog">
+<meta property="og:description" content="java 复习002java东西太多了，我都有点小凌乱了，记得太没结构了  
+java内存回收机制：垃圾收集GC（Garbage Collection）两种常用方法：  
+
+引用计数（早期使用）
+
+简介：堆中对象每次被栈中引用指向时，它的引用计数就加一，引用被删除时就减一；当引用计数为0的时候就被回收
+优点：操作简单，运行很快，在实时环境中比较有利
+缺点：容易出现循环引用（当A对象中有B对象的引用">
+<meta property="og:image" content="http://vell001.ml/images/Struts2-Architecture.png">
+<meta property="og:updated_time" content="2014-04-12T14:13:24.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java 复习002">
+<meta name="twitter:description" content="java 复习002java东西太多了，我都有点小凌乱了，记得太没结构了  
+java内存回收机制：垃圾收集GC（Garbage Collection）两种常用方法：  
+
+引用计数（早期使用）
+
+简介：堆中对象每次被栈中引用指向时，它的引用计数就加一，引用被删除时就减一；当引用计数为0的时候就被回收
+优点：操作简单，运行很快，在实时环境中比较有利
+缺点：容易出现循环引用（当A对象中有B对象的引用">
+<meta name="twitter:image" content="http://vell001.ml/images/Struts2-Architecture.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://vell001.ml/2014/04/12/java_review002.html"/>
+
+
+
+
+
+  <title>java 复习002 | VBlog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">VBlog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Welcome to vell001's world</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://vell001.ml/2014/04/12/java_review002.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Vell Bibi">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="VBlog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">java 复习002</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-04-12T09:12:04+08:00">
+                Apr 12 2014
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="java-复习002"><a href="#java-复习002" class="headerlink" title="java 复习002"></a>java 复习002</h1><pre><code>java东西太多了，我都有点小凌乱了，记得太没结构了  
+</code></pre><h2 id="java内存回收机制：垃圾收集GC（Garbage-Collection）"><a href="#java内存回收机制：垃圾收集GC（Garbage-Collection）" class="headerlink" title="java内存回收机制：垃圾收集GC（Garbage Collection）"></a>java内存回收机制：垃圾收集GC（Garbage Collection）</h2><p>两种常用方法：  </p>
+<ol>
+<li><p>引用计数（早期使用）</p>
+<ul>
+<li>简介：<strong>堆中对象</strong>每次被<strong>栈中引用</strong>指向时，它的引用计数就加一，引用被删除时就减一；当引用计数为0的时候就被回收</li>
+<li>优点：操作简单，运行很快，在实时环境中比较有利</li>
+<li>缺点：容易出现循环引用（当A对象中有B对象的引用，B对象同时也存在A对象的引用时，AB对象的引用永远不可能为0，类似于<em>死锁</em>）</li>
+</ul>
+</li>
+<li><p>引用遍历（现在使用）</p>
+<ul>
+<li>简介：从<strong>栈中根引用</strong>开始递归遍历可达对象，标记所有可达对象，然后回收没有标记的对象</li>
+<li>优点：不会出现循环引用，因为就算AB循环了，但是它们共同不可达，同样会被回收</li>
+<li>缺点：实现复杂，运行慢，运行时要打断应用程序工作</li>
+</ul>
+</li>
+</ol>
+<a id="more"></a>
+<h2 id="java-异常机制"><a href="#java-异常机制" class="headerlink" title="java 异常机制"></a>java 异常机制</h2><ol>
+<li>异常：<blockquote>
+<p>程序出现异常，就是在当前环境下没有相应的处理程序可以调用时，程序会出现一种中断现象。</p>
+</blockquote>
+</li>
+<li>处理机制简介：<ol>
+<li>出现异常时JVM会抛出一个异常类对象，如果程序中有相应的<code>try-catch</code>语句的话，会交给程序处理，如果没有的话直接交给JVM，JVM一般会在控制台打印出错信息。</li>
+<li>存在<code>try-catch</code>的话，当<code>try</code>捕获到异常类对象时交给<code>catch</code>，匹配<code>catch</code>中定义的异常类，相同则执行<code>catch</code>语句块，找不见对应的<code>catch</code>的话就交给JVM了</li>
+<li>Error和Exception的区别：<ol>
+<li>Error属于JVM一级的错误，可能和操作系统有关，程序无法控制和处理</li>
+<li>Exceptioan是开发者级的错误，大多数情况下可以由程序控制和处理，除了一些unchecked exception外，RuntimeException和其子类都是unchecked excception，如：NullPointerException，ClassCastException和IndexOutOfBoundsException</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="反射机制（Reflection）"><a href="#反射机制（Reflection）" class="headerlink" title="反射机制（Reflection）"></a>反射机制（Reflection）</h2><ol>
+<li><p>简介(<a href="http://baike.baidu.com/view/3454964.htm" target="_blank" rel="external">百度百科</a>)</p>
+<ol>
+<li>在计算机科学领域，反射是指一类应用，它们能够自描述和自控制。也就是说，这类应用通过采用某种机制来实现对自己行为的描述（self-representation）和监测（examination），并能根据自身行为的状态和结果，调整或修改应用所描述行为的状态和相关的语义</li>
+<li>Java中，反射是一种强大的工具。它使您能够创建灵活的代码，这些代码可以在运行时装配</li>
+<li>但需注意的是：如果使用不当，反射的成本很高。</li>
+</ol>
+</li>
+<li><p>作用</p>
+<ol>
+<li>通过类说明可以得到类的父类、实现的接口、内部类、构造函数、方法、属性</li>
+<li>可以根据构造器实例化一个对象，唤起一个方法，取属性值，改属性值</li>
+</ol>
+</li>
+<li><p>使用</p>
+<ol>
+<li><p>得到一个类说明</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Class cls=类.class;</div><div class="line">Class cls=对象.getClass();</div><div class="line">Class.forName(<span class="string">"类路径"</span>);</div></pre></td></tr></table></figure>
+</li>
+<li><p>得到一个方法并唤起它</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">Class cls=类.class;</div><div class="line">Constructor cons=cls.getConstructor(<span class="keyword">new</span> Class[]&#123;String.class&#125;);</div><div class="line">Object obj=cons.newInstance(<span class="keyword">new</span> Object[]&#123;<span class="string">"aaa"</span>&#125;);</div><div class="line">Method method=cls.getMethod(<span class="string">"方法名"</span>,<span class="keyword">new</span> Class[]&#123;String.class,Integer.class&#125;);</div><div class="line">method.invoke(obj,<span class="keyword">new</span> Object[]&#123;<span class="string">"aa"</span>,<span class="keyword">new</span> Integer(<span class="number">1</span>)&#125;);</div></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="Struts2"><a href="#Struts2" class="headerlink" title="Struts2"></a>Struts2</h2><ol>
+<li>struts2运行机制<br><img src="/images/Struts2-Architecture.png" alt=""></li>
+<li>拦截器实现（动态代理，详见：<a href="http://vblog.vell001.ml/2014/04/11/java_review001.html" target="_blank" rel="external">java_review001</a>）<ol>
+<li>由<code>ActionInvocation</code>控制所有的拦截器</li>
+<li>拦截器先执行<code>before</code>的代码，再调<code>ActionInvocation.invoke()</code>方法，最后执行<code>after</code>代码</li>
+<li>对<code>ActionInvocation</code>中的<code>invoke</code>方法实现了递归调用</li>
+</ol>
+</li>
+<li>filter(过滤器)&lt;-&gt;interaptor(拦截器)<ol>
+<li>拦截器是基于<strong>JAVA反射机制</strong>的，而过滤器是基于<strong>函数回调</strong>的。</li>
+<li>过滤器依赖于Servlet容器，而拦截器不依赖于Servlet容器</li>
+<li>拦截器只能对Action请求起作用，而过滤器可以对几乎所有的请求起作用。</li>
+<li>拦截器可以访问Action上下文、值栈里的对象，而过滤器不能</li>
+<li>在Action的生命周期中，拦截器可以多次被调用，而过滤器只能在容器初始化时被调用一次。</li>
+</ol>
+</li>
+</ol>
+<h2 id="Spring"><a href="#Spring" class="headerlink" title="Spring"></a>Spring</h2><p>Spring在MVC模式中处于Controller位置</p>
+<ol>
+<li>IoC(依赖注入)<ol>
+<li>简介：通常，服务代码需要先创建待使用的对象实例；而IoC模式中，创建待使用实例的任务由IoC容器来完成，服务代码直接使用实例</li>
+<li>优势：<ol>
+<li>应用组件不需要在运行时自己寻找待使用对象，简化代码</li>
+<li>只需在配置文件中管理组件依赖关系，不需要编写依赖关系代码</li>
+<li>降低了组件间的耦合度，提高类的重用性，利于系统集成和配置</li>
+</ol>
+</li>
+<li>实现方法：反射机制</li>
+</ol>
+</li>
+<li>AOP(面向切面编程)<ol>
+<li>简介：在核心服务代码前后插入其它辅助服务代码，相当于将整个服务切成片了</li>
+<li>优势：轻松实现辅助模块的装配</li>
+<li>实现：动态代理(CGLIB),底层实现参考：<a href="http://www.ibm.com/developerworks/cn/java/j-lo-springaopcglib/" target="_blank" rel="external">Spring AOP 实现原理与 CGLIB 应用</a></li>
+</ol>
+</li>
+</ol>
+<h2 id="PreparedStatement和Statement"><a href="#PreparedStatement和Statement" class="headerlink" title="PreparedStatement和Statement"></a>PreparedStatement和Statement</h2><ol>
+<li>PreparedStatement是参数化查询，使用<code>?</code>占位；Statement就是通用的SQL查询，凑SQL语句</li>
+<li>PreparedStatement更快，因为SQL语句会预编译到数据库系统中，以后有相同的SQL请求不用再做<strong>分析-&gt;编译-&gt;优化</strong>的步骤了</li>
+<li>SQL注入式攻击，指用户在填写查询信息时加入恶意的SQL代码，如<code>&#39;; DROP TABLE users</code></li>
+<li>PreparedStatement能防止SQL注入式攻击，原因：PreparedStatement在参数传入前，它的SQL语句就在数据库中编译好了，执行时直接套用参数，所以参数中的SQL语句不会被数据库执行</li>
+<li>另一种防止SQL注入式攻击的方法：对传入字符串做转换（将单引号字符取代为连续2个单引号字符，因为连续2个单引号字符在SQL数据库中会视为字符中的一个单引号字符）</li>
+</ol>
+<h2 id="线程同步"><a href="#线程同步" class="headerlink" title="线程同步"></a>线程同步</h2><ol>
+<li><p>线程创建</p>
+<ol>
+<li>实现<code>Runnable</code>接口，使用时需创建Thread对象，然后将实现了<code>Runnable</code>接口的对象传进去</li>
+<li>直接继承<code>Thread</code>类(<code>Thread</code>本身已经实现了<code>Runnable</code>接口)，不用再创建Thread对象了，直接调用<code>start()</code>方法就启动线程了</li>
+<li>尽量使用<code>Runnable</code>接口，因为接口的可扩展性好，它还可以继承一个别的类；而继承<code>Thread</code>类后不能再继承其它类了</li>
+</ol>
+</li>
+<li><p>线程关闭</p>
+<ol>
+<li>在父线程里使用<code>interrupt()</code>方法，在子线程里捕获<code>InterruptedExcepution</code>异常，调用<code>return</code>就结束子进程了（不太建议使用）</li>
+<li>直接在父进程使用<code>stop()</code>方法，直接杀死子进程（太粗暴，不使用）</li>
+<li>在子进程中添加<code>flag</code>属性，并给<code>run()</code>方法里加<code>while(flag)</code>语句，这样父进程只要将子进程的<code>flag</code>属性设为<code>false</code>，<code>run()</code>方法就结束了，整个进程也就结束了</li>
+</ol>
+</li>
+<li><p>线程同步</p>
+<ol>
+<li>sleep<ol>
+<li><code>Thread.sleep(1000)</code>,表示当前线程睡眠1秒钟</li>
+<li>sleep时依然拥有着当前synchronized代码的锁，别的线程无法访问（区别于wait）</li>
+</ol>
+</li>
+<li>加锁(synchronized)<ol>
+<li>函数前：<code>public synchronized void doSomething(){}</code></li>
+<li>代码块：<code>synchronized(this){doSomething();}</code></li>
+<li>作用：当执行到<code>doSomething()</code>方法时锁定当前对象，不允许其他线程访问执行<code>doSomething()</code>函数，但可以执行别的<strong>没有加锁</strong>的代码；如果程序中有多个synchronized，则看谁先执行，后面的需要等待前面的执行完才能执行</li>
+</ol>
+</li>
+<li>wait<ol>
+<li>使用前提是必须在synchronized代码内</li>
+<li><code>this.wait()</code>,表示让执行当前synchronized代码的线程等待</li>
+<li>wait时，当前线程将进入阻塞状态，并且失去当前synchronized代码的锁（区别于sleep）</li>
+</ol>
+</li>
+<li>notify<ol>
+<li>和wait相对应使用</li>
+<li><code>this.notify()</code>,表示叫醒一个在当前synchronized代码<code>wait</code>的线程</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<blockquote>
+<p>参考至：<br><a href="http://www.cnblogs.com/laoyangHJ/articles/java_gc.html" target="_blank" rel="external">http://www.cnblogs.com/laoyangHJ/articles/java_gc.html</a><br><a href="http://blog.csdn.net/kiss_vicente/article/details/7597700" target="_blank" rel="external">http://blog.csdn.net/kiss_vicente/article/details/7597700</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/algorithm/" rel="tag"># algorithm</a>
+          
+            <a href="/tags/java/" rel="tag"># java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/04/11/java_review001.html" rel="next" title="java 复习001">
+                <i class="fa fa-chevron-left"></i> java 复习001
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/04/13/some-sort-algorithms-java.html" rel="prev" title="java 复习003 之排序篇">
+                java 复习003 之排序篇 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="Vell Bibi" />
+          <p class="site-author-name" itemprop="name">Vell Bibi</p>
+           
+              <p class="site-description motion-element" itemprop="description">Share something I know</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">43</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-name">分类</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">43</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#java-复习002"><span class="nav-number">1.</span> <span class="nav-text">java 复习002</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#java内存回收机制：垃圾收集GC（Garbage-Collection）"><span class="nav-number">1.1.</span> <span class="nav-text">java内存回收机制：垃圾收集GC（Garbage Collection）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#java-异常机制"><span class="nav-number">1.2.</span> <span class="nav-text">java 异常机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#反射机制（Reflection）"><span class="nav-number">1.3.</span> <span class="nav-text">反射机制（Reflection）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Struts2"><span class="nav-number">1.4.</span> <span class="nav-text">Struts2</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring"><span class="nav-number">1.5.</span> <span class="nav-text">Spring</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PreparedStatement和Statement"><span class="nav-number">1.6.</span> <span class="nav-text">PreparedStatement和Statement</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程同步"><span class="nav-number">1.7.</span> <span class="nav-text">线程同步</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Vell Bibi</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

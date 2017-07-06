@@ -1,0 +1,844 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="C/C++,QT,VFeiQ," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="VBlog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="前言
+我们学校的生产实习从6月30号开始到8月2号，每周六天，总共30天；这是一段值得怀念的日子，每天都是9点准时到实验室上班，每天的气温都在37度以上，感受到了西安最炎酷的夏天，也感受到了工作的气氛。我选的是C++方向，项目是基于QT开发的一个局域网通信系统，我们组我给取名为VFeiQ。
+
+文档和设计
+一开始做这个项目时是写各种文档，神马需求分析、概要设计、详细设计…每天还要写工作日志，整个项目">
+<meta property="og:type" content="article">
+<meta property="og:title" content="VFeiQ简介">
+<meta property="og:url" content="http://vell001.ml/2014/08/27/VFeiQ.html">
+<meta property="og:site_name" content="VBlog">
+<meta property="og:description" content="前言
+我们学校的生产实习从6月30号开始到8月2号，每周六天，总共30天；这是一段值得怀念的日子，每天都是9点准时到实验室上班，每天的气温都在37度以上，感受到了西安最炎酷的夏天，也感受到了工作的气氛。我选的是C++方向，项目是基于QT开发的一个局域网通信系统，我们组我给取名为VFeiQ。
+
+文档和设计
+一开始做这个项目时是写各种文档，神马需求分析、概要设计、详细设计…每天还要写工作日志，整个项目">
+<meta property="og:image" content="http://vell001.ml/images/vfeiq/20140827141702.png">
+<meta property="og:image" content="http://vell001.ml/images/vfeiq/vfeiq001.jpg">
+<meta property="og:image" content="http://vell001.ml/images/vfeiq/vfeiq002.png">
+<meta property="og:image" content="http://vell001.ml/images/vfeiq/vfeiq003.jpg">
+<meta property="og:image" content="http://vell001.ml/images/vfeiq/vfeiq004.png">
+<meta property="og:image" content="http://vell001.ml/images/vfeiq/聊天时序图.png">
+<meta property="og:image" content="http://vell001.ml/images/vfeiq/上线广播时序图.png">
+<meta property="og:image" content="http://vell001.ml/images/vfeiq/文件传输时序图.png">
+<meta property="og:image" content="http://vell001.ml/images/vfeiq/文件共享时序图.png">
+<meta property="og:image" content="http://vell001.ml/images/vfeiq/20140731111302.png">
+<meta property="og:image" content="http://vell001.ml/images/vfeiq/20140731112014.png">
+<meta property="og:image" content="http://vell001.ml/images/vfeiq/20140731111735.png">
+<meta property="og:image" content="http://vell001.ml/images/vfeiq/20140731111830.png">
+<meta property="og:image" content="http://vell001.ml/images/vfeiq/20140731111433.png">
+<meta property="og:image" content="http://vell001.ml/images/vfeiq/20140731111457.png">
+<meta property="og:image" content="http://vell001.ml/images/vfeiq/20140731111526.png">
+<meta property="og:image" content="http://vell001.ml/images/vfeiq/20140731111543.png">
+<meta property="og:image" content="http://vell001.ml/images/vfeiq/20140731112107.png">
+<meta property="og:image" content="http://vell001.ml/images/vfeiq/20140731111616.png">
+<meta property="og:image" content="http://vell001.ml/images/vfeiq/20140731111616.png">
+<meta property="og:image" content="http://vell001.ml/images/vfeiq/20140731111558.png">
+<meta property="og:image" content="http://vell001.ml/images/vfeiq/20140731111647.png">
+<meta property="og:image" content="http://vell001.ml/images/vfeiq/20140731111750.png">
+<meta property="og:image" content="http://vell001.ml/images/vfeiq/20140731111709.png">
+<meta property="og:image" content="http://vell001.ml/images/vfeiq/20140731111723.png">
+<meta property="og:updated_time" content="2014-08-27T05:51:11.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="VFeiQ简介">
+<meta name="twitter:description" content="前言
+我们学校的生产实习从6月30号开始到8月2号，每周六天，总共30天；这是一段值得怀念的日子，每天都是9点准时到实验室上班，每天的气温都在37度以上，感受到了西安最炎酷的夏天，也感受到了工作的气氛。我选的是C++方向，项目是基于QT开发的一个局域网通信系统，我们组我给取名为VFeiQ。
+
+文档和设计
+一开始做这个项目时是写各种文档，神马需求分析、概要设计、详细设计…每天还要写工作日志，整个项目">
+<meta name="twitter:image" content="http://vell001.ml/images/vfeiq/20140827141702.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://vell001.ml/2014/08/27/VFeiQ.html"/>
+
+
+
+
+
+  <title>VFeiQ简介 | VBlog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">VBlog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Welcome to vell001's world</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://vell001.ml/2014/08/27/VFeiQ.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Vell Bibi">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="VBlog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">VFeiQ简介</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-08-27T13:51:11+08:00">
+                Aug 27 2014
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/QT/" itemprop="url" rel="index">
+                    <span itemprop="name">QT</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote>
+<p>我们学校的生产实习从6月30号开始到8月2号，每周六天，总共30天；这是一段值得怀念的日子，每天都是9点准时到实验室<strong>上班</strong>，每天的气温都在37度以上，感受到了西安最炎酷的夏天，也感受到了工作的气氛。<br>我选的是C++方向，项目是基于QT开发的一个局域网通信系统，我们组我给取名为<strong>VFeiQ</strong>。</p>
+</blockquote>
+<h2 id="文档和设计"><a href="#文档和设计" class="headerlink" title="文档和设计"></a>文档和设计</h2><blockquote>
+<p>一开始做这个项目时是写各种文档，神马需求分析、概要设计、详细设计…每天还要写工作日志，整个项目做下来写了非常多的文档，这是我们小组最后出来的文档文件夹：<br><img src="/images/vfeiq/20140827141702.png" alt=""></p>
+</blockquote>
+<ol>
+<li><p>整个系统的需求分析框架图：<br><img src="/images/vfeiq/vfeiq001.jpg" alt=""></p>
+</li>
+<li><p>系统用例图：<br><img src="/images/vfeiq/vfeiq002.png" alt=""></p>
+</li>
+<li><p>业务流程图：<br><img src="/images/vfeiq/vfeiq003.jpg" alt=""></p>
+</li>
+</ol>
+<h2 id="代码编写与设计"><a href="#代码编写与设计" class="headerlink" title="代码编写与设计"></a>代码编写与设计</h2><blockquote>
+<p>第一次使用QT去写一个完整的程序是老师布置的一个小作业题，就是这个东西《<a href="/2014/06/30/first-qt-project.html">第一个完整的QT程序</a>》；这个完了就直接开始写整个系统的通信功能。我之前一直学的是java方面的，包括android，很少使用C++去写东西，最多用下C语言。这次是个不错的挑战，不过刚开始写的时候代码是天天改，大多数是因为语法问题，后来纠结于使用指针还是引用，在后来变成了整个系统分层的设计，模块的设计。学习了很多QT的东西，包括信号槽、model-view的概念，还有一些容器的使用等等。我慢慢发现QT设计的太好了，特别是信号槽的设计！而且容器的设计也是非常棒的，可以和java一样去访问，当然还可以和VC一样去用。甚至现在我写一个String的时候还老写成QString了～～～<br>觉得第一个C++应该向java学习的地方就是java的包管理；好像C++就没有包的概念，也允许文件名和类名不一致，java这种规范是让世界的程序员都拥有统一的编程习惯，而C++的理念却是使编程自由度最大化。QTCreator最应该向Eclipse学习的地方就是代码自动生成功能了；我在写QT代码时写得最烦的就是get/set函数，这个完全可以让编辑器去自动生成的啊，可是QTCreator没有这个功能。<br>这个项目是完全使用git管理的，全部代码开源到<a href="https://github.com/vell001/VFeiQ" target="_blank" rel="external">github</a>上</p>
+</blockquote>
+<ol>
+<li><p>整体设计的架构图：<br><img src="/images/vfeiq/vfeiq004.png" alt=""></p>
+</li>
+<li><p>聊天时序图：<br><img src="/images/vfeiq/聊天时序图.png" alt=""></p>
+</li>
+<li><p>上线广播时序图：<br><img src="/images/vfeiq/上线广播时序图.png" alt=""></p>
+</li>
+<li><p>文件传输时序图：<br><img src="/images/vfeiq/文件传输时序图.png" alt=""></p>
+</li>
+<li><p>文件共享时序图：<br><img src="/images/vfeiq/文件共享时序图.png" alt=""></p>
+</li>
+</ol>
+<h2 id="成果展"><a href="#成果展" class="headerlink" title="成果展"></a>成果展</h2><blockquote>
+<p>其中最有价值也是最难的部分应该是文件传输，我当时严重感冒了，刚开始代码写得非常乱，后来感冒好了，发现文件传输部分的代码实在是看不下去了，差不多又重写了一遍；我在写代码的时候一直注重设计，反复考虑每个类的功能，整个系统的架构，正因如此，我经常动不动改掉一大堆代码，甚至推翻之前的协议。</p>
+</blockquote>
+<ol>
+<li><p>主界面<br><img src="/images/vfeiq/20140731111302.png" alt=""></p>
+</li>
+<li><p>任务栏最小化界面<br><img src="/images/vfeiq/20140731112014.png" alt=""></p>
+</li>
+<li><p>最近联系人界面<br><img src="/images/vfeiq/20140731111735.png" alt=""></p>
+</li>
+<li><p>联系人搜索界面<br><img src="/images/vfeiq/20140731111830.png" alt=""></p>
+</li>
+<li><p>聊天界面<br><img src="/images/vfeiq/20140731111433.png" alt=""></p>
+</li>
+<li><p>聊天截图功能<br><img src="/images/vfeiq/20140731111457.png" alt=""></p>
+</li>
+<li><p>聊天字体颜色选择功能<br><img src="/images/vfeiq/20140731111526.png" alt=""></p>
+</li>
+<li><p>聊天字体和大小选择功能<br><img src="/images/vfeiq/20140731111543.png" alt=""></p>
+</li>
+<li><p>聊天表情发送功能<br><img src="/images/vfeiq/20140731112107.png" alt=""></p>
+</li>
+<li><p>多文件传输功能<br><img src="/images/vfeiq/20140731111616.png" alt=""></p>
+</li>
+<li><p>多文件传输功能<br><img src="/images/vfeiq/20140731111616.png" alt=""></p>
+</li>
+<li><p>查看和下载别人的共享文件<br><img src="/images/vfeiq/20140731111558.png" alt=""></p>
+</li>
+<li><p>设置自己的共享文件<br><img src="/images/vfeiq/20140731111647.png" alt=""></p>
+</li>
+<li><p>系统设置之头像设置<br><img src="/images/vfeiq/20140731111750.png" alt=""></p>
+</li>
+<li><p>应用中心<br><img src="/images/vfeiq/20140731111709.png" alt=""></p>
+</li>
+<li><p>天气预报<br><img src="/images/vfeiq/20140731111723.png" alt=""></p>
+</li>
+</ol>
+<h2 id="项目源代码"><a href="#项目源代码" class="headerlink" title="项目源代码"></a>项目源代码</h2><blockquote>
+<p>我一直喜欢开源的东西，当然我自己的东西更喜欢开源，不管做得好不好，开源了就意味着可能给别人带来帮助，我喜欢这种开源的感觉～</p>
+</blockquote>
+<p>全部项目代码，github: <a href="https://github.com/vell001/VFeiQ" target="_blank" rel="external">https://github.com/vell001/VFeiQ</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/C-C/" rel="tag"># C/C++</a>
+          
+            <a href="/tags/QT/" rel="tag"># QT</a>
+          
+            <a href="/tags/VFeiQ/" rel="tag"># VFeiQ</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/08/12/diy-game-wheel.html" rel="next" title="diy游戏方向盘">
+                <i class="fa fa-chevron-left"></i> diy游戏方向盘
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/09/02/cpp-algorithm-problem.html" rel="prev" title="C/C++的一些算法题">
+                C/C++的一些算法题 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="Vell Bibi" />
+          <p class="site-author-name" itemprop="name">Vell Bibi</p>
+           
+              <p class="site-description motion-element" itemprop="description">Share something I know</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">43</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-name">分类</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">43</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#文档和设计"><span class="nav-number">2.</span> <span class="nav-text">文档和设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#代码编写与设计"><span class="nav-number">3.</span> <span class="nav-text">代码编写与设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#成果展"><span class="nav-number">4.</span> <span class="nav-text">成果展</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#项目源代码"><span class="nav-number">5.</span> <span class="nav-text">项目源代码</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Vell Bibi</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

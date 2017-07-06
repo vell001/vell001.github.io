@@ -1,0 +1,788 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="C/C++," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="VBlog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="前言最近开始做编译原理的课程设计，我被安排做一个First集和Follow集生成算法模拟软件。我都忘了什么是First和Follow集了，查了回资料开搞明白了First集，Follow集还挺复杂的。我之前一直有做一个带代码高亮的编辑器的，这次逮到机会了，虽然老师要求没有那么复杂，可是自己还是想来个小挑战（实现最简单的识别文法）。于是决定用Qt去写。
+老师要求题目模拟算法的基本功能实现：
+
+输入一个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="求First和Follow集【编译原理】">
+<meta property="og:url" content="http://vell001.ml/2014/12/29/first-follow.html">
+<meta property="og:site_name" content="VBlog">
+<meta property="og:description" content="前言最近开始做编译原理的课程设计，我被安排做一个First集和Follow集生成算法模拟软件。我都忘了什么是First和Follow集了，查了回资料开搞明白了First集，Follow集还挺复杂的。我之前一直有做一个带代码高亮的编辑器的，这次逮到机会了，虽然老师要求没有那么复杂，可是自己还是想来个小挑战（实现最简单的识别文法）。于是决定用Qt去写。
+老师要求题目模拟算法的基本功能实现：
+
+输入一个">
+<meta property="og:image" content="http://vell001.ml/images/first_follow/20141229212345.png">
+<meta property="og:image" content="http://vell001.ml/images/first_follow/20141229214009.png">
+<meta property="og:image" content="http://vell001.ml/images/first_follow/20141229212205.png">
+<meta property="og:image" content="http://vell001.ml/images/first_follow/20141229212243.png">
+<meta property="og:image" content="http://vell001.ml/images/first_follow/20141229215442.png">
+<meta property="og:image" content="http://vell001.ml/images/first_follow/20141229221556.png">
+<meta property="og:image" content="http://vell001.ml/images/first_follow/20141229221623.png">
+<meta property="og:updated_time" content="2014-12-29T13:41:57.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="求First和Follow集【编译原理】">
+<meta name="twitter:description" content="前言最近开始做编译原理的课程设计，我被安排做一个First集和Follow集生成算法模拟软件。我都忘了什么是First和Follow集了，查了回资料开搞明白了First集，Follow集还挺复杂的。我之前一直有做一个带代码高亮的编辑器的，这次逮到机会了，虽然老师要求没有那么复杂，可是自己还是想来个小挑战（实现最简单的识别文法）。于是决定用Qt去写。
+老师要求题目模拟算法的基本功能实现：
+
+输入一个">
+<meta name="twitter:image" content="http://vell001.ml/images/first_follow/20141229212345.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://vell001.ml/2014/12/29/first-follow.html"/>
+
+
+
+
+
+  <title>求First和Follow集【编译原理】 | VBlog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">VBlog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Welcome to vell001's world</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://vell001.ml/2014/12/29/first-follow.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Vell Bibi">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="VBlog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">求First和Follow集【编译原理】</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-12-29T21:41:52+08:00">
+                Dec 29 2014
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C-C/" itemprop="url" rel="index">
+                    <span itemprop="name">C/C++</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近开始做编译原理的课程设计，我被安排做一个First集和Follow集生成算法模拟软件。我都忘了什么是First和Follow集了，查了回资料开搞明白了First集，Follow集还挺复杂的。<br>我之前一直有做一个带代码高亮的编辑器的，这次逮到机会了，虽然老师要求没有那么复杂，可是自己还是想来个小挑战（实现最简单的识别文法）。于是决定用Qt去写。</p>
+<h2 id="老师要求题目"><a href="#老师要求题目" class="headerlink" title="老师要求题目"></a>老师要求题目</h2><p>模拟算法的基本功能实现：</p>
+<ol>
+<li>输入一个文法G； </li>
+<li>输出由文法G构造的FIRST集合； </li>
+<li>输出由文法G构造的FOLLOW集合； </li>
+<li>构造预测分析表，并判断该文法是否为LL(1)文法。（选作）</li>
+</ol>
+<h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><ul>
+<li>windows7 x64 </li>
+<li>Qt 5.3.1</li>
+</ul>
+<h2 id="大体功能简介"><a href="#大体功能简介" class="headerlink" title="大体功能简介"></a>大体功能简介</h2><h3 id="主界面"><a href="#主界面" class="headerlink" title="主界面"></a>主界面</h3><ol>
+<li>可以选择从文本读取文法，也可自行输入</li>
+<li>文本读取后会跳到编辑器解析</li>
+</ol>
+<h3 id="编辑器"><a href="#编辑器" class="headerlink" title="编辑器"></a>编辑器</h3><ol>
+<li>使用正则表达式解析文档每行字符串里符合标准的文法句子，如果匹配错误给出出错信息，以及行号，同时界面高亮错误位置</li>
+<li>匹配成功后根据对应的终结符或非终结符高亮字符，同时整理代码格式</li>
+<li>可以保存到文本，在退出时自动保存到之前保存的文本</li>
+</ol>
+<h3 id="First求解过程"><a href="#First求解过程" class="headerlink" title="First求解过程"></a>First求解过程</h3><ol>
+<li>直接收取：对形如”U-&gt;a…”的产生式（其中a是终结符），把a收入到First(U)中</li>
+<li>反复传送：对形入”U-&gt;P…”的产生式（其中P是非终结符），应把First(P)中的全部内容传送到First(U)中（递归实现）</li>
+</ol>
+<h3 id="Follow求解过程"><a href="#Follow求解过程" class="headerlink" title="Follow求解过程"></a>Follow求解过程</h3><ol>
+<li>设S为文法的开始符号，将加入Follow(U)中</li>
+<li>反复传送：对形如U-&gt;…P的产生式（其中P是非终结符），应把Follow(U)中的全部内容传送到Follow(P)中。</li>
+</ol>
+<h2 id="界面展示"><a href="#界面展示" class="headerlink" title="界面展示"></a>界面展示</h2><ul>
+<li>代码文件展<br><img src="/images/first_follow/20141229212345.png" alt=""><br><img src="/images/first_follow/20141229214009.png" alt=""></li>
+<li>主界面<br><img src="/images/first_follow/20141229212205.png" alt=""></li>
+<li>编辑器<br><img src="/images/first_follow/20141229212243.png" alt=""><br><img src="/images/first_follow/20141229215442.png" alt=""></li>
+<li>First&amp;Follow显示<br><img src="/images/first_follow/20141229221556.png" alt=""><br><img src="/images/first_follow/20141229221623.png" alt=""></li>
+</ul>
+<h2 id="源代码"><a href="#源代码" class="headerlink" title="源代码"></a>源代码</h2><p>开源地址：<a href="https://github.com/vell001/FirstFollow" target="_blank" rel="external">点我去vell001的Github</a></p>
+<h2 id="后语"><a href="#后语" class="headerlink" title="后语"></a>后语</h2><blockquote>
+<p>这个代码写得不是很好，特别是Follow集求解那块，由于自己对Follow集的理解不是很深，总感觉写得有问题，不过到目前我的测试数据都是正确的。今天貌似有点发烧，就先这样了，头疼~</p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/C-C/" rel="tag"># C/C++</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/11/16/opencv-feature-recognition.html" rel="next" title="opencv下特征识别VMatcher">
+                <i class="fa fa-chevron-left"></i> opencv下特征识别VMatcher
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/01/25/vsigner.html" rel="prev" title="VSigner-《到》签到系统">
+                VSigner-《到》签到系统 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="Vell Bibi" />
+          <p class="site-author-name" itemprop="name">Vell Bibi</p>
+           
+              <p class="site-description motion-element" itemprop="description">Share something I know</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">43</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-name">分类</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">43</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#老师要求题目"><span class="nav-number">2.</span> <span class="nav-text">老师要求题目</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#环境"><span class="nav-number">3.</span> <span class="nav-text">环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#大体功能简介"><span class="nav-number">4.</span> <span class="nav-text">大体功能简介</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#主界面"><span class="nav-number">4.1.</span> <span class="nav-text">主界面</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#编辑器"><span class="nav-number">4.2.</span> <span class="nav-text">编辑器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#First求解过程"><span class="nav-number">4.3.</span> <span class="nav-text">First求解过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Follow求解过程"><span class="nav-number">4.4.</span> <span class="nav-text">Follow求解过程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#界面展示"><span class="nav-number">5.</span> <span class="nav-text">界面展示</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源代码"><span class="nav-number">6.</span> <span class="nav-text">源代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后语"><span class="nav-number">7.</span> <span class="nav-text">后语</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Vell Bibi</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,742 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="hexo,vblog,octopress," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="VBlog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="#换博客的原因： 
+
+前几天一直在用octopress，觉得它的设计真不错，很有创意，就是配置文件太多了，有点受不了啊，装个插件费劲死了，光pygments这个东东把我害惨了快~；各种错误，代码高亮太坑爹了
+小问题还好解决，就是太繁琐了，可速度慢这个问题真是硬伤啊~我这才不到二十篇帖子，生成的时间有时能到近一分钟~真是奇慢无比啊！这可真受不了，到时上百篇帖子那还得了！果断准备换平台了
+最近对nod">
+<meta property="og:type" content="article">
+<meta property="og:title" content="把vblog从octopress搬到hexo上了">
+<meta property="og:url" content="http://vell001.ml/2014/04/07/vblog_by_hexo.html">
+<meta property="og:site_name" content="VBlog">
+<meta property="og:description" content="#换博客的原因： 
+
+前几天一直在用octopress，觉得它的设计真不错，很有创意，就是配置文件太多了，有点受不了啊，装个插件费劲死了，光pygments这个东东把我害惨了快~；各种错误，代码高亮太坑爹了
+小问题还好解决，就是太繁琐了，可速度慢这个问题真是硬伤啊~我这才不到二十篇帖子，生成的时间有时能到近一分钟~真是奇慢无比啊！这可真受不了，到时上百篇帖子那还得了！果断准备换平台了
+最近对nod">
+<meta property="og:image" content="http://vell001.ml/images/20140407161850.png">
+<meta property="og:image" content="http://vell001.ml/images/20140407163255.png">
+<meta property="og:image" content="http://vell001.ml/images/20140407163602.png">
+<meta property="og:updated_time" content="2017-01-04T14:41:00.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="把vblog从octopress搬到hexo上了">
+<meta name="twitter:description" content="#换博客的原因： 
+
+前几天一直在用octopress，觉得它的设计真不错，很有创意，就是配置文件太多了，有点受不了啊，装个插件费劲死了，光pygments这个东东把我害惨了快~；各种错误，代码高亮太坑爹了
+小问题还好解决，就是太繁琐了，可速度慢这个问题真是硬伤啊~我这才不到二十篇帖子，生成的时间有时能到近一分钟~真是奇慢无比啊！这可真受不了，到时上百篇帖子那还得了！果断准备换平台了
+最近对nod">
+<meta name="twitter:image" content="http://vell001.ml/images/20140407161850.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://vell001.ml/2014/04/07/vblog_by_hexo.html"/>
+
+
+
+
+
+  <title>把vblog从octopress搬到hexo上了 | VBlog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">VBlog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Welcome to vell001's world</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://vell001.ml/2014/04/07/vblog_by_hexo.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Vell Bibi">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="VBlog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">把vblog从octopress搬到hexo上了</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-04-07T15:33:40+08:00">
+                Apr 7 2014
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>#换博客的原因： </p>
+<ol>
+<li>前几天一直在用<a href="http://octopress.org/" target="_blank" rel="external">octopress</a>，觉得它的设计真不错，很有创意，就是配置文件太多了，有点受不了啊，装个插件费劲死了，光pygments这个东东把我害惨了快~；各种错误，代码高亮太坑爹了</li>
+<li>小问题还好解决，就是太繁琐了，可速度慢这个问题真是硬伤啊~我这才不到二十篇帖子，生成的时间有时能到近一分钟~真是奇慢无比啊！这可真受不了，到时上百篇帖子那还得了！果断准备换平台了</li>
+<li>最近对<a href="http://nodejs.org/" target="_blank" rel="external">node.js</a>很感冒，虽然很是不了解，但非常想了解，真正我google一下node.js的时候奇迹发生了，<a href="http://hexo.io/" target="_blank" rel="external">hexo</a>被我发现了,真是发现新大陆了</li>
+<li>发现hexo和octopress很像，可以说是兼容octopress了；刚开始觉得它就是node.js版的octopress，不过慢慢发现hexo和octopress就像是linux和unix；</li>
+<li>hexo更快更简洁，相当给力，一个台湾同胞做的，英文文档也写得很全，虽然现在用户貌似不多，我相信一定会火的！<a id="more"></a>
+</li>
+</ol>
+<p>#过程</p>
+<blockquote>
+<p>换的过程可以用曲折来描述，不是因为hexo太麻烦（hexo正常安装还是很简单的），而是因为学校网太垃圾，windows太难用，vm下的linux太坑爹~，还有自己git技术太菜  </p>
+</blockquote>
+<ul>
+<li>之前费劲周折在centos上安装node.js，最后还是没安装上，疯了快~错误原因居然会是找不见js文件，可是按它提示的路径我手动给找见了，服了~暂时无解，已经把centos删了（vmware里面的）</li>
+<li>后来图个新鲜，装个linuxmint玩玩，编译安装node.js很简单，就是编译时间有点长，快10分钟了。不过安装hexo的时候就悲剧了：<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">npm install hexo -g</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>我可以说执行这个命令上百遍了，全是卡在了某个下载文件那！还在windows下试了，也是同样！整了我昨天一晚上啊！今天偷偷用了下别人的cmcc居然一下就安装上了~学校网伤不起！！！真想说：<strong>珍爱生命，远离科大~</strong></p>
+<ul>
+<li>在linuxmint和windows上都装好了hexo了，开始配置自己的博客了，我使用的是<a href="https://github.com/wuchong/jacman" target="_blank" rel="external">jacman</a>这个主题，感觉不错，很喜欢这个主题的配色，随便改了改就拿来用了</li>
+<li>配置好后在linuxmint下部署到<a href="http://gitcafe.com" target="_blank" rel="external">gitcafe</a>上了，一个国内高仿的github。国内速度还不错，使用我的另一个域名发布：<a href="http://vview.ml" target="_blank" rel="external">vview.ml</a></li>
+<li>正当我用得high了，vmware直接给我来个死机，linuxmint没有任何反应了，和我上次用ubuntu一样，当时正因为ubuntu在vm下老死机才换到centos的，现在换linuxmint了还是难逃厄运。悲催，又不想重启电脑，把vm的进程关了，想想，在windows下应该也能很简单的使用吧。</li>
+<li>环境换到windows下了，没有死机了，却来了各种莫名的error。windows的命令行不是一般难用啊！换到git的bash也是一样，甚至再装了个cygwin，还是没有linux的干脆。在执行：<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">hexo deploy</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>时有一个永恒的error：<br><img src="/images/20140407161850.png" alt="error"><br>google了一大堆解决方法，貌似都是针对linux的，在cygwin下都出错，no idea!虽然我相信这个问题一定有啥办法可以解决，但是太费劲了，windows坑爹啊！</p>
+<ul>
+<li>这个问题肯定是一个git的问题，而且肯定是身份验证publickey的问题，既然是这样，我就直接使用windows下git默认的gui了，界面版的操作也挺简单的，省去了命令行的繁琐（我更喜欢命令行，前提是不在windows下），直接进<em>.deploy</em>文件夹右键找<em>git gui</em>，然后~~~</li>
+<li>最后我在windows下成功发布博客了，这篇博客也将在windows下发布。虽然过程很悲催，至少达到目的了，先歇会，来句口号：珍爱生命，远离windows~（呵呵，仅仅针对对无聊的程序猿）</li>
+</ul>
+<p>#结果</p>
+<ul>
+<li>博客平台更换成功！博客生成速度显著提升：<br><img src="/images/20140407163255.png" alt="speed">  </li>
+<li>体验到了hexo的简洁高效，再也不想回到octopress了！~</li>
+<li>再来张本博客的截图吧：<br><img src="/images/20140407163602.png" alt="vblog"></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/hexo/" rel="tag"># hexo</a>
+          
+            <a href="/tags/vblog/" rel="tag"># vblog</a>
+          
+            <a href="/tags/octopress/" rel="tag"># octopress</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/04/05/vmtools-install-problem.html" rel="next" title="vmtools 共享文件夹问题 ">
+                <i class="fa fa-chevron-left"></i> vmtools 共享文件夹问题 
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/04/09/VYoudao.html" rel="prev" title="奋战的又一个python程序-VYoudao">
+                奋战的又一个python程序-VYoudao <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="Vell Bibi" />
+          <p class="site-author-name" itemprop="name">Vell Bibi</p>
+           
+              <p class="site-description motion-element" itemprop="description">Share something I know</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">43</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-name">分类</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">43</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Vell Bibi</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

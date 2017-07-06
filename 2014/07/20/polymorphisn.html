@@ -1,0 +1,814 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="C/C++," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="VBlog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="前言
+借着这次学校的生产实习来回顾下C++的多态，这里讨论下C++的多态以及实现原理。我都是在QT下使用C++的，就直接在QT下进行演示了
+
+多态介绍
+面向对象语言中最核心的几个理念就是：封装、继承、多态，其中我感觉多态是真正的核心，第一第二个只是它的辅助。同时多态又是不容易懂的，所以在这就简单的介绍下啦（虽然我也懂得不多，呵呵）
+
+静态联编第一个简单的小程序（重载的多态）++view raw12">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++多态简介">
+<meta property="og:url" content="http://vell001.ml/2014/07/20/polymorphisn.html">
+<meta property="og:site_name" content="VBlog">
+<meta property="og:description" content="前言
+借着这次学校的生产实习来回顾下C++的多态，这里讨论下C++的多态以及实现原理。我都是在QT下使用C++的，就直接在QT下进行演示了
+
+多态介绍
+面向对象语言中最核心的几个理念就是：封装、继承、多态，其中我感觉多态是真正的核心，第一第二个只是它的辅助。同时多态又是不容易懂的，所以在这就简单的介绍下啦（虽然我也懂得不多，呵呵）
+
+静态联编第一个简单的小程序（重载的多态）++view raw12">
+<meta property="og:image" content="http://vell001.ml/images/cpp/20140720184945.png">
+<meta property="og:image" content="http://vell001.ml/images/cpp/20140720193228.png">
+<meta property="og:image" content="http://vell001.ml/images/cpp/20140720195721.png">
+<meta property="og:image" content="http://vell001.ml/images/cpp/20140720200532.png">
+<meta property="og:image" content="http://vell001.ml/images/cpp/20140720205730.png">
+<meta property="og:image" content="http://vell001.ml/images/cpp/20140720210041.png">
+<meta property="og:image" content="http://vell001.ml/images/cpp/20140720212350.png">
+<meta property="og:image" content="http://vell001.ml/images/cpp/20140720220656.png">
+<meta property="og:image" content="http://vell001.ml/images/cpp/20140720221920.png">
+<meta property="og:image" content="http://vell001.ml/images/cpp/20140720222807.png">
+<meta property="og:updated_time" content="2014-07-20T08:55:14.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="C++多态简介">
+<meta name="twitter:description" content="前言
+借着这次学校的生产实习来回顾下C++的多态，这里讨论下C++的多态以及实现原理。我都是在QT下使用C++的，就直接在QT下进行演示了
+
+多态介绍
+面向对象语言中最核心的几个理念就是：封装、继承、多态，其中我感觉多态是真正的核心，第一第二个只是它的辅助。同时多态又是不容易懂的，所以在这就简单的介绍下啦（虽然我也懂得不多，呵呵）
+
+静态联编第一个简单的小程序（重载的多态）++view raw12">
+<meta name="twitter:image" content="http://vell001.ml/images/cpp/20140720184945.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://vell001.ml/2014/07/20/polymorphisn.html"/>
+
+
+
+
+
+  <title>C++多态简介 | VBlog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">VBlog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Welcome to vell001's world</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://vell001.ml/2014/07/20/polymorphisn.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Vell Bibi">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="VBlog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">C++多态简介</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-07-20T16:55:14+08:00">
+                Jul 20 2014
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C-C/" itemprop="url" rel="index">
+                    <span itemprop="name">C/C++</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote>
+<p>借着这次学校的生产实习来回顾下C++的多态，这里讨论下C++的多态以及实现原理。我都是在QT下使用C++的，就直接在QT下进行演示了</p>
+</blockquote>
+<h2 id="多态介绍"><a href="#多态介绍" class="headerlink" title="多态介绍"></a>多态介绍</h2><blockquote>
+<p>面向对象语言中最核心的几个理念就是：封装、继承、多态，其中我感觉多态是真正的核心，第一第二个只是它的辅助。同时多态又是不容易懂的，所以在这就简单的介绍下啦（虽然我也懂得不多，呵呵）</p>
+</blockquote>
+<h2 id="静态联编"><a href="#静态联编" class="headerlink" title="静态联编"></a>静态联编</h2><h3 id="第一个简单的小程序（重载的多态）"><a href="#第一个简单的小程序（重载的多态）" class="headerlink" title="第一个简单的小程序（重载的多态）"></a>第一个简单的小程序（重载的多态）</h3><figure class="highlight c"><figcaption><span>++</span><a href="/_codes/cpp/polymorphisn001.cpp">view raw</a></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QCoreApplication&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QDebug&gt;</span></span></div><div class="line"><span class="keyword">class</span> Person {</div><div class="line"><span class="keyword">public</span> :</div><div class="line">    <span class="keyword">int</span> age;</div><div class="line">    Person() : age(<span class="number">10</span>){}</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">getAge</span><span class="params">()</span> </span>{</div><div class="line">        qDebug() &lt;&lt; <span class="string">"Person: "</span> &lt;&lt; age;</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line"><span class="keyword">class</span> VellBibi : <span class="keyword">public</span> Person {</div><div class="line"><span class="keyword">public</span> :</div><div class="line">    <span class="keyword">int</span> age;</div><div class="line">    VellBibi() : age(<span class="number">21</span>){}</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">getAge</span><span class="params">()</span> </span>{</div><div class="line">        qDebug() &lt;&lt; <span class="string">"VellBibi: "</span> &lt;&lt; age;</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></span></div><div class="line">{</div><div class="line">    <span class="function">QCoreApplication <span class="title">a</span><span class="params">(argc, argv)</span></span>;</div><div class="line"></div><div class="line">    Person p;</div><div class="line">    p.getAge();</div><div class="line"></div><div class="line">    VellBibi v;</div><div class="line">    v.getAge();</div><div class="line"></div><div class="line">    Person *pPtr = &amp;v;</div><div class="line">    pPtr-&gt;getAge();</div><div class="line"></div><div class="line">    <span class="keyword">return</span> a.exec();</div><div class="line">}</div></pre></td></tr></table></figure>
+<h3 id="运行结果"><a href="#运行结果" class="headerlink" title="运行结果"></a>运行结果</h3><p><img src="/images/cpp/20140720184945.png" alt=""></p>
+<h3 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h3><blockquote>
+<p><code>VellBibi</code>类继承了<code>Person</code>类，<code>VellBibi</code>里重载了<code>Person</code>的<code>getAge()</code>方法，这样就实现了静态的多态，它的实现过程是在编译期间的。这种多态存在硬伤，就是当使用父类指针指向子类对象时，访问的是父类的东西，而不是子类的。这个算是C++的一个特性，在java里面就没有这个情况，因为java直接就是是动态联编，java的多态里面就不存在静态联编</p>
+</blockquote>
+<h2 id="动态联编"><a href="#动态联编" class="headerlink" title="动态联编"></a>动态联编</h2><h3 id="第二个简单的小程序（虚函数的多态）"><a href="#第二个简单的小程序（虚函数的多态）" class="headerlink" title="第二个简单的小程序（虚函数的多态）"></a>第二个简单的小程序（虚函数的多态）</h3><figure class="highlight c"><figcaption><span>++</span><a href="/_codes/cpp/polymorphisn002.cpp">view raw</a></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QCoreApplication&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QDebug&gt;</span></span></div><div class="line"><span class="keyword">class</span> Person {</div><div class="line"><span class="keyword">public</span> :</div><div class="line">    <span class="keyword">int</span> age;</div><div class="line">    Person() : age(<span class="number">10</span>){}</div><div class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">getAge</span><span class="params">()</span> </span>{</div><div class="line">        qDebug() &lt;&lt; <span class="string">"Person: "</span> &lt;&lt; age;</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line"><span class="keyword">class</span> VellBibi : <span class="keyword">public</span> Person {</div><div class="line"><span class="keyword">public</span> :</div><div class="line">    <span class="keyword">int</span> age;</div><div class="line">    VellBibi() : age(<span class="number">21</span>){}</div><div class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">getAge</span><span class="params">()</span> </span>{</div><div class="line">        qDebug() &lt;&lt; <span class="string">"VellBibi: "</span> &lt;&lt; age;</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></span></div><div class="line">{</div><div class="line">    <span class="function">QCoreApplication <span class="title">a</span><span class="params">(argc, argv)</span></span>;</div><div class="line"></div><div class="line">    Person p;</div><div class="line">    p.getAge();</div><div class="line"></div><div class="line">    VellBibi v;</div><div class="line">    v.getAge();</div><div class="line"></div><div class="line">    Person *pPtr = &amp;v;</div><div class="line">    pPtr-&gt;getAge();</div><div class="line"></div><div class="line">    <span class="keyword">return</span> a.exec();</div><div class="line">}</div></pre></td></tr></table></figure>
+<h3 id="运行结果-1"><a href="#运行结果-1" class="headerlink" title="运行结果"></a>运行结果</h3><p><img src="/images/cpp/20140720193228.png" alt=""></p>
+<h3 id="说明-1"><a href="#说明-1" class="headerlink" title="说明"></a>说明</h3><blockquote>
+<p>这个小程序和上一个一样，唯一变得就是在<code>Person</code>的<code>getAge()</code>方法前加了一个<code>virtual</code>关键字，<code>VellBibi</code>可加可不加，但最好加上。在C++中<code>virtual</code>关键字就是用来声明虚函数的，所谓虚函数就是虚的函数嘛，呵呵，就是这个函数不是在编译期间就确定下来了，而是在运行期间动态指定的。这就是导致这个小程序和上个小程序的运行结果不同的原因，当使用父类指针指向子类对象时，调用父类虚函数时系统会自动寻找到子类对象的函数。  </p>
+<p>接下来介绍下C++是怎么实现这个动态指定过程的</p>
+</blockquote>
+<h2 id="多态的实现"><a href="#多态的实现" class="headerlink" title="多态的实现"></a>多态的实现</h2><h3 id="第三个小程序（静态联编时对象的大小）"><a href="#第三个小程序（静态联编时对象的大小）" class="headerlink" title="第三个小程序（静态联编时对象的大小）"></a>第三个小程序（静态联编时对象的大小）</h3><figure class="highlight c"><figcaption><span>++</span><a href="/_codes/cpp/polymorphisn003.cpp">view raw</a></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QCoreApplication&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QDebug&gt;</span></span></div><div class="line"><span class="keyword">class</span> Person {</div><div class="line"><span class="keyword">public</span> :</div><div class="line">    <span class="keyword">int</span> age;</div><div class="line">    Person() : age(<span class="number">10</span>){}</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">getAge</span><span class="params">()</span> </span>{</div><div class="line">        qDebug() &lt;&lt; <span class="string">"Person: "</span> &lt;&lt; age;</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line"><span class="keyword">class</span> VellBibi : <span class="keyword">public</span> Person {</div><div class="line"><span class="keyword">public</span> :</div><div class="line">    <span class="keyword">int</span> age;</div><div class="line">    VellBibi() : age(<span class="number">21</span>){}</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">getAge</span><span class="params">()</span> </span>{</div><div class="line">        qDebug() &lt;&lt; <span class="string">"VellBibi: "</span> &lt;&lt; age;</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></span></div><div class="line">{</div><div class="line">    <span class="function">QCoreApplication <span class="title">a</span><span class="params">(argc, argv)</span></span>;</div><div class="line"></div><div class="line">    Person p;</div><div class="line">    p.getAge();</div><div class="line"></div><div class="line">    VellBibi v;</div><div class="line">    v.getAge();</div><div class="line"></div><div class="line">    Person *pPtr = &amp;v;</div><div class="line">    pPtr-&gt;getAge();</div><div class="line"></div><div class="line">    qDebug() &lt;&lt; <span class="string">"PersonSize: "</span> &lt;&lt; <span class="keyword">sizeof</span>(p);</div><div class="line">    qDebug() &lt;&lt; <span class="string">"VellBibiSize: "</span> &lt;&lt; <span class="keyword">sizeof</span>(v);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> a.exec();</div><div class="line">}</div></pre></td></tr></table></figure>
+<h3 id="运行结果-2"><a href="#运行结果-2" class="headerlink" title="运行结果"></a>运行结果</h3><p><img src="/images/cpp/20140720195721.png" alt=""></p>
+<h3 id="说明-2"><a href="#说明-2" class="headerlink" title="说明"></a>说明</h3><blockquote>
+<p>这个程序只是在第一个程序上加了<code>sizeof()</code>，看出来了神马？<code>Person</code>是4个字节，也就是<code>int age;</code>的字节数；<code>VellBibi</code>是8个字节，其实就是<code>Person</code>的字节数加上<code>VellBibi</code>的<code>int age;</code>的字节数。</p>
+</blockquote>
+<h3 id="第四个小程序（动态联编时对象的大小）"><a href="#第四个小程序（动态联编时对象的大小）" class="headerlink" title="第四个小程序（动态联编时对象的大小）"></a>第四个小程序（动态联编时对象的大小）</h3><figure class="highlight c"><figcaption><span>++</span><a href="/_codes/cpp/polymorphisn004.cpp">view raw</a></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QCoreApplication&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QDebug&gt;</span></span></div><div class="line"><span class="keyword">class</span> Person {</div><div class="line"><span class="keyword">public</span> :</div><div class="line">    <span class="keyword">int</span> age;</div><div class="line">    Person() : age(<span class="number">10</span>){}</div><div class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">getAge</span><span class="params">()</span> </span>{</div><div class="line">        qDebug() &lt;&lt; <span class="string">"Person: "</span> &lt;&lt; age;</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line"><span class="keyword">class</span> VellBibi : <span class="keyword">public</span> Person {</div><div class="line"><span class="keyword">public</span> :</div><div class="line">    <span class="keyword">int</span> age;</div><div class="line">    VellBibi() : age(<span class="number">21</span>){}</div><div class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">getAge</span><span class="params">()</span> </span>{</div><div class="line">        qDebug() &lt;&lt; <span class="string">"VellBibi: "</span> &lt;&lt; age;</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></span></div><div class="line">{</div><div class="line">    <span class="function">QCoreApplication <span class="title">a</span><span class="params">(argc, argv)</span></span>;</div><div class="line"></div><div class="line">    Person p;</div><div class="line">    p.getAge();</div><div class="line"></div><div class="line">    VellBibi v;</div><div class="line">    v.getAge();</div><div class="line"></div><div class="line">    Person *pPtr = &amp;v;</div><div class="line">    pPtr-&gt;getAge();</div><div class="line"></div><div class="line">    qDebug() &lt;&lt; <span class="string">"PersonSize: "</span> &lt;&lt; <span class="keyword">sizeof</span>(p);</div><div class="line">    qDebug() &lt;&lt; <span class="string">"VellBibiSize: "</span> &lt;&lt; <span class="keyword">sizeof</span>(v);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> a.exec();</div><div class="line">}</div></pre></td></tr></table></figure>
+<h3 id="运行结果-3"><a href="#运行结果-3" class="headerlink" title="运行结果"></a>运行结果</h3><p><img src="/images/cpp/20140720200532.png" alt=""></p>
+<h3 id="说明-3"><a href="#说明-3" class="headerlink" title="说明"></a>说明</h3><blockquote>
+<p>这个程序只是在第二个程序上加了<code>sizeof()</code>，这时会发现<code>Person</code>变8个字节了，为神马呢？这是两个int型的大小啊，why？好了不卖关子了，这是静态<code>Person</code>的大小加上一个指针的大小，那哪来的指针呢？在<code>Person</code>里面也没有定义啊！呵呵，这是C++编译器自动加上的，加上用来动态指定的，只要存在<code>virtual</code>关键字的类最上面都是有一个这样的指针，指向一个<code>vtable</code>虚拟表，里面记录着这个类所有包含的虚函数地址。  </p>
+</blockquote>
+<h2 id="动态联编内存示例图："><a href="#动态联编内存示例图：" class="headerlink" title="动态联编内存示例图："></a>动态联编内存示例图：</h2><p><img src="/images/cpp/20140720205730.png" alt=""></p>
+<h3 id="第五个小程序（动态联编内存分析）"><a href="#第五个小程序（动态联编内存分析）" class="headerlink" title="第五个小程序（动态联编内存分析）"></a>第五个小程序（动态联编内存分析）</h3><figure class="highlight c"><figcaption><span>++</span><a href="/_codes/cpp/polymorphisn005.cpp">view raw</a></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QCoreApplication&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QDebug&gt;</span></span></div><div class="line"><span class="keyword">class</span> Person {</div><div class="line"><span class="keyword">public</span> :</div><div class="line">    <span class="keyword">int</span> age;</div><div class="line">    Person() : age(<span class="number">10</span>){}</div><div class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">getAge</span><span class="params">()</span> </span>{</div><div class="line">        qDebug() &lt;&lt; <span class="string">"Person: "</span> &lt;&lt; age;</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line"><span class="keyword">class</span> VellBibi : <span class="keyword">public</span> Person {</div><div class="line"><span class="keyword">public</span> :</div><div class="line">    <span class="keyword">int</span> age;</div><div class="line">    VellBibi() : age(<span class="number">21</span>){}</div><div class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">getAge</span><span class="params">()</span> </span>{</div><div class="line">        qDebug() &lt;&lt; <span class="string">"VellBibi: "</span> &lt;&lt; age;</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></span></div><div class="line">{</div><div class="line">    <span class="function">QCoreApplication <span class="title">a</span><span class="params">(argc, argv)</span></span>;</div><div class="line"></div><div class="line">    Person p;</div><div class="line">    VellBibi v;</div><div class="line"></div><div class="line">    <span class="keyword">int</span> *pfv = (<span class="keyword">int</span> *)&amp;p;</div><div class="line">    <span class="keyword">int</span> *vfv = (<span class="keyword">int</span> *)&amp;v;</div><div class="line">    qDebug() &lt;&lt; <span class="string">"PersonFirstValue: "</span> &lt;&lt; *pfv;</div><div class="line">    qDebug() &lt;&lt; <span class="string">"VellBibiFirstValue: "</span> &lt;&lt; *vfv;</div><div class="line"></div><div class="line">    qDebug() &lt;&lt; <span class="string">"PersonSecondValue: "</span> &lt;&lt; *(pfv + <span class="number">1</span>);</div><div class="line">    qDebug() &lt;&lt; <span class="string">"VellBibiSecondValue: "</span> &lt;&lt; *(vfv + <span class="number">1</span>);</div><div class="line"></div><div class="line">    qDebug() &lt;&lt; <span class="string">"PersonThirdValue: "</span> &lt;&lt; *(pfv + <span class="number">2</span>);</div><div class="line">    qDebug() &lt;&lt; <span class="string">"VellBibiSThirdValue: "</span> &lt;&lt; *(vfv + <span class="number">2</span>);</div><div class="line"></div><div class="line">    <span class="keyword">int</span> *pt = (<span class="keyword">int</span> *)*pfv;</div><div class="line">    <span class="keyword">int</span> *vt = (<span class="keyword">int</span> *)*vfv;</div><div class="line">    qDebug() &lt;&lt; <span class="string">"PersonVTableFirstValue: "</span> &lt;&lt; *pt;</div><div class="line">    qDebug() &lt;&lt; <span class="string">"VellBibiVTableFirstValue: "</span> &lt;&lt; *vt;</div><div class="line"></div><div class="line">    qDebug() &lt;&lt; <span class="string">"PersonVTableSecondValue: "</span> &lt;&lt; *(pt + <span class="number">1</span>);</div><div class="line">    qDebug() &lt;&lt; <span class="string">"VellBibiVTableSecondValue: "</span> &lt;&lt; *(vt + <span class="number">1</span>);</div><div class="line">    <span class="keyword">return</span> a.exec();</div><div class="line">}</div></pre></td></tr></table></figure>
+<h3 id="运行结果-4"><a href="#运行结果-4" class="headerlink" title="运行结果"></a>运行结果</h3><p><img src="/images/cpp/20140720210041.png" alt=""></p>
+<h3 id="说明-4"><a href="#说明-4" class="headerlink" title="说明"></a>说明</h3><blockquote>
+<p>将对象第地址强制转换成int型指针来探寻对象内部数据的情况。前两行是对象的头地址的值，很明显这是一个指针；3、4行是第二个值，都是<code>Person</code>的<code>int age;</code>变量； 5行是一个随机值，说明<code>Person</code>对象里面其实就只有一个<code>int age;</code>变量而已，其实在C++中类的实现也就是一个C语言的struct而已。再将头地址指向的<code>vtable</code>里的值取出来看看，7、8行就是各自<code>vtable</code>的第一个值，可以看出还是一个指针，指向的肯定是代码段相对应的函数啦~这两个指针指向了不同的函数，这也就是动态联编啦~当然还需要一个程序来说明，等会再说；再看看9、10行，都是0，也就是<code>NULL</code>很好理解，是不是似曾相识啊，没错就是字符串里的结束符啦！</p>
+</blockquote>
+<h3 id="第六个小程序（动态联编的美妙）"><a href="#第六个小程序（动态联编的美妙）" class="headerlink" title="第六个小程序（动态联编的美妙）"></a>第六个小程序（动态联编的美妙）</h3><figure class="highlight c"><figcaption><span>++</span><a href="/_codes/cpp/polymorphisn006.cpp">view raw</a></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QCoreApplication&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QDebug&gt;</span></span></div><div class="line"><span class="keyword">class</span> Person {</div><div class="line"><span class="keyword">public</span> :</div><div class="line">    <span class="keyword">int</span> age;</div><div class="line">    Person() : age(<span class="number">10</span>){}</div><div class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">getAge</span><span class="params">()</span> </span>{</div><div class="line">        qDebug() &lt;&lt; <span class="string">"Person: "</span> &lt;&lt; age;</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line"><span class="keyword">class</span> VellBibi : <span class="keyword">public</span> Person {</div><div class="line"><span class="keyword">public</span> :</div><div class="line">    <span class="keyword">int</span> age;</div><div class="line">    VellBibi() : age(<span class="number">21</span>){}</div><div class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">getAge</span><span class="params">()</span> </span>{</div><div class="line">        qDebug() &lt;&lt; <span class="string">"VellBibi: "</span> &lt;&lt; age;</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></span></div><div class="line">{</div><div class="line">    <span class="function">QCoreApplication <span class="title">a</span><span class="params">(argc, argv)</span></span>;</div><div class="line"></div><div class="line">    Person p;</div><div class="line">    VellBibi v;</div><div class="line">    Person *vp = &amp;v;</div><div class="line"></div><div class="line">    <span class="keyword">int</span> *pfv = (<span class="keyword">int</span> *)&amp;p;</div><div class="line">    <span class="keyword">int</span> *vfv = (<span class="keyword">int</span> *)vp;</div><div class="line">    qDebug() &lt;&lt; <span class="string">"PersonFirstValue: "</span> &lt;&lt; *pfv;</div><div class="line">    qDebug() &lt;&lt; <span class="string">"VellBibiFirstValue: "</span> &lt;&lt; *vfv;</div><div class="line">    qDebug();</div><div class="line"></div><div class="line">    qDebug() &lt;&lt; <span class="string">"PersonSecondValue: "</span> &lt;&lt; *(pfv + <span class="number">1</span>);</div><div class="line">    qDebug() &lt;&lt; <span class="string">"VellBibiSecondValue: "</span> &lt;&lt; *(vfv + <span class="number">1</span>);</div><div class="line">    qDebug();</div><div class="line"></div><div class="line">    qDebug() &lt;&lt; <span class="string">"PersonThirdValue: "</span> &lt;&lt; *(pfv + <span class="number">2</span>);</div><div class="line">    qDebug() &lt;&lt; <span class="string">"VellBibiSThirdValue: "</span> &lt;&lt; *(vfv + <span class="number">2</span>);</div><div class="line">    qDebug();</div><div class="line"></div><div class="line">    <span class="keyword">int</span> *pt = (<span class="keyword">int</span> *)*pfv;</div><div class="line">    <span class="keyword">int</span> *vt = (<span class="keyword">int</span> *)*vfv;</div><div class="line">    qDebug() &lt;&lt; <span class="string">"PersonVTableFirstValue: "</span> &lt;&lt; *pt;</div><div class="line">    qDebug() &lt;&lt; <span class="string">"VellBibiVTableFirstValue: "</span> &lt;&lt; *vt;</div><div class="line">    qDebug();</div><div class="line"></div><div class="line">    qDebug() &lt;&lt; <span class="string">"PersonVTableSecondValue: "</span> &lt;&lt; *(pt + <span class="number">1</span>);</div><div class="line">    qDebug() &lt;&lt; <span class="string">"VellBibiVTableSecondValue: "</span> &lt;&lt; *(vt + <span class="number">1</span>);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> a.exec();</div><div class="line">}</div></pre></td></tr></table></figure>
+<h3 id="运行结果-5"><a href="#运行结果-5" class="headerlink" title="运行结果"></a>运行结果</h3><p><img src="/images/cpp/20140720212350.png" alt=""></p>
+<h3 id="说明-5"><a href="#说明-5" class="headerlink" title="说明"></a>说明</h3><blockquote>
+<p>这个应该很好理解了，只是定义了一个<code>Person</code>的指针<code>vp</code>，指向了<code>VellBibi</code>的对象<code>v</code>，然后将<code>&amp;v</code>换成了<code>vp</code>，其他的都没变；也就是使用父类指针指向子类对象，结果可以看出和第五个程序是一样的，说明了C++的动态联编。</p>
+</blockquote>
+<h2 id="来道分析题"><a href="#来道分析题" class="headerlink" title="来道分析题"></a>来道分析题</h2><h3 id="第七个小程序（问题代码）"><a href="#第七个小程序（问题代码）" class="headerlink" title="第七个小程序（问题代码）"></a>第七个小程序（问题代码）</h3><figure class="highlight c"><figcaption><span>++</span><a href="/_codes/cpp/polymorphisn007.cpp">view raw</a></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QCoreApplication&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;QDebug&gt;</span></span></div><div class="line"><span class="keyword">class</span> Person {</div><div class="line"><span class="keyword">public</span> :</div><div class="line">    <span class="keyword">int</span> age;</div><div class="line">    Person() : age(<span class="number">10</span>){}</div><div class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">getAge</span><span class="params">()</span> </span>{</div><div class="line">        qDebug() &lt;&lt; <span class="string">"Person: "</span> &lt;&lt; age;</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line"><span class="keyword">class</span> VellBibi : <span class="keyword">public</span> Person {</div><div class="line"><span class="keyword">public</span> :</div><div class="line">    <span class="keyword">int</span> suiShu;</div><div class="line">    VellBibi() : suiShu(<span class="number">21</span>){}</div><div class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">getAge</span><span class="params">()</span> </span>{</div><div class="line">        qDebug() &lt;&lt; <span class="string">"VellBibi: "</span> &lt;&lt; suiShu;</div><div class="line">    }</div><div class="line">};</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></span></div><div class="line">{</div><div class="line">    <span class="function">QCoreApplication <span class="title">a</span><span class="params">(argc, argv)</span></span>;</div><div class="line"></div><div class="line">    Person p;</div><div class="line">    VellBibi v;</div><div class="line"></div><div class="line">    Person *pptr = &amp;p;</div><div class="line"></div><div class="line">    <span class="keyword">int</span> *pp = (<span class="keyword">int</span> *)&amp;p;</div><div class="line">    <span class="keyword">int</span> *vp = (<span class="keyword">int</span> *)&amp;v;</div><div class="line"></div><div class="line">    *pp = *vp;</div><div class="line"></div><div class="line">    pptr-&gt;getAge();</div><div class="line"></div><div class="line">    <span class="keyword">return</span> a.exec();</div><div class="line">}</div></pre></td></tr></table></figure>
+<h3 id="运行结果-6"><a href="#运行结果-6" class="headerlink" title="运行结果"></a>运行结果</h3><p><img src="/images/cpp/20140720220656.png" alt=""></p>
+<h3 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h3><blockquote>
+<p>结果可以看出该打印的<code>suiShu</code>变随机数了；我这里使用了点小计俩，我先将对象的头地址当做int看待，然后将<code>VellBibi</code>对象的头地址赋值给了<code>Person</code>对象，最后使用<code>Person</code>对象的指针去调它自己的函数，会发现出错了。上内存分析图吧:  </p>
+</blockquote>
+<h4 id="没有改变Person对象头指针"><a href="#没有改变Person对象头指针" class="headerlink" title="没有改变Person对象头指针"></a>没有改变Person对象头指针</h4><p><img src="/images/cpp/20140720221920.png" alt=""></p>
+<h4 id="改变了Person对象头指针后"><a href="#改变了Person对象头指针后" class="headerlink" title="改变了Person对象头指针后"></a>改变了Person对象头指针后</h4><p><img src="/images/cpp/20140720222807.png" alt=""></p>
+<blockquote>
+<p>继续分析，<code>Person</code>对象的<code>vtable</code>指针指向了<code>VellBibi</code>的<code>vtable</code>，当使用指针去访问时虚函数时就会做动态联编，<code>Person</code>对象会找到<code>VellBibi</code>的<code>vtable</code>然后找到了<code>VellBibi</code>的<code>getAge()</code>,而<code>VellBibi</code>的<code>getAge()</code>回去调它自己的变量也就是<code>suishu</code>变量，这下就出问题了，<code>Person</code>对象哪来的<code>suishu</code>变量？所以就系统就在那个不是<code>Person</code>对象内容的地方取了个值，当然这是随机的啦</p>
+</blockquote>
+<hr>
+<p>结束语</p>
+<blockquote>
+<p>写这篇帖子是为了明天实习的每人一讲啦~不过更是一种分享，我是从别人那得到的这份知识，想更好的让更多的人去收获这份知识，这就是分享的意义；当得知我做的努力给别人带来了帮助，我会非常高兴，这就是分享的乐趣。一起分享一起学习，Come on~~~</p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/C-C/" rel="tag"># C/C++</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/07/09/some-git-knowledges.html" rel="next" title="一些git的小知识">
+                <i class="fa fa-chevron-left"></i> 一些git的小知识
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/08/12/diy-game-wheel.html" rel="prev" title="diy游戏方向盘">
+                diy游戏方向盘 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="Vell Bibi" />
+          <p class="site-author-name" itemprop="name">Vell Bibi</p>
+           
+              <p class="site-description motion-element" itemprop="description">Share something I know</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">43</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-name">分类</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">43</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多态介绍"><span class="nav-number">2.</span> <span class="nav-text">多态介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#静态联编"><span class="nav-number">3.</span> <span class="nav-text">静态联编</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#第一个简单的小程序（重载的多态）"><span class="nav-number">3.1.</span> <span class="nav-text">第一个简单的小程序（重载的多态）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#运行结果"><span class="nav-number">3.2.</span> <span class="nav-text">运行结果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#说明"><span class="nav-number">3.3.</span> <span class="nav-text">说明</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#动态联编"><span class="nav-number">4.</span> <span class="nav-text">动态联编</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#第二个简单的小程序（虚函数的多态）"><span class="nav-number">4.1.</span> <span class="nav-text">第二个简单的小程序（虚函数的多态）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#运行结果-1"><span class="nav-number">4.2.</span> <span class="nav-text">运行结果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#说明-1"><span class="nav-number">4.3.</span> <span class="nav-text">说明</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多态的实现"><span class="nav-number">5.</span> <span class="nav-text">多态的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#第三个小程序（静态联编时对象的大小）"><span class="nav-number">5.1.</span> <span class="nav-text">第三个小程序（静态联编时对象的大小）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#运行结果-2"><span class="nav-number">5.2.</span> <span class="nav-text">运行结果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#说明-2"><span class="nav-number">5.3.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第四个小程序（动态联编时对象的大小）"><span class="nav-number">5.4.</span> <span class="nav-text">第四个小程序（动态联编时对象的大小）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#运行结果-3"><span class="nav-number">5.5.</span> <span class="nav-text">运行结果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#说明-3"><span class="nav-number">5.6.</span> <span class="nav-text">说明</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#动态联编内存示例图："><span class="nav-number">6.</span> <span class="nav-text">动态联编内存示例图：</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#第五个小程序（动态联编内存分析）"><span class="nav-number">6.1.</span> <span class="nav-text">第五个小程序（动态联编内存分析）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#运行结果-4"><span class="nav-number">6.2.</span> <span class="nav-text">运行结果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#说明-4"><span class="nav-number">6.3.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第六个小程序（动态联编的美妙）"><span class="nav-number">6.4.</span> <span class="nav-text">第六个小程序（动态联编的美妙）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#运行结果-5"><span class="nav-number">6.5.</span> <span class="nav-text">运行结果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#说明-5"><span class="nav-number">6.6.</span> <span class="nav-text">说明</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#来道分析题"><span class="nav-number">7.</span> <span class="nav-text">来道分析题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#第七个小程序（问题代码）"><span class="nav-number">7.1.</span> <span class="nav-text">第七个小程序（问题代码）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#运行结果-6"><span class="nav-number">7.2.</span> <span class="nav-text">运行结果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题分析"><span class="nav-number">7.3.</span> <span class="nav-text">问题分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#没有改变Person对象头指针"><span class="nav-number">7.3.1.</span> <span class="nav-text">没有改变Person对象头指针</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#改变了Person对象头指针后"><span class="nav-number">7.3.2.</span> <span class="nav-text">改变了Person对象头指针后</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Vell Bibi</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

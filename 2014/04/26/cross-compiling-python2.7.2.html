@@ -1,0 +1,863 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="python,linux,ok6410," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="VBlog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="环境
+ubuntu12.04 x86
+ok6410开发板
+arm-linux-gcc-4.3.2
+python-2.7.2 
+
+配置交叉编译工具
+1sudo mkdir /usr/local/arm
+
+
+创建目录，若目录已存在会提示错误，跳过即可
+
+1sudo tar zxvf arm-linux-gcc-4.3.2.tgz -C /
+
+
+编译器解压到/usr/local/arm
+
+1sudo g">
+<meta property="og:type" content="article">
+<meta property="og:title" content="交叉编译python2.7.2">
+<meta property="og:url" content="http://vell001.ml/2014/04/26/cross-compiling-python2.7.2.html">
+<meta property="og:site_name" content="VBlog">
+<meta property="og:description" content="环境
+ubuntu12.04 x86
+ok6410开发板
+arm-linux-gcc-4.3.2
+python-2.7.2 
+
+配置交叉编译工具
+1sudo mkdir /usr/local/arm
+
+
+创建目录，若目录已存在会提示错误，跳过即可
+
+1sudo tar zxvf arm-linux-gcc-4.3.2.tgz -C /
+
+
+编译器解压到/usr/local/arm
+
+1sudo g">
+<meta property="og:image" content="http://vell001.ml/images/20140425194440.png">
+<meta property="og:image" content="http://vell001.ml/images/20140425200654.png">
+<meta property="og:image" content="http://vell001.ml/images/20140425210131.png">
+<meta property="og:image" content="http://vell001.ml/images/20140425220715.png">
+<meta property="og:image" content="http://vell001.ml/images/20140426001533.png">
+<meta property="og:image" content="http://vell001.ml/images/20140426005143.png">
+<meta property="og:image" content="http://vell001.ml/images/20140426004936.png">
+<meta property="og:image" content="http://vell001.ml/images/20140426020001.png">
+<meta property="og:updated_time" content="2014-04-25T18:01:35.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="交叉编译python2.7.2">
+<meta name="twitter:description" content="环境
+ubuntu12.04 x86
+ok6410开发板
+arm-linux-gcc-4.3.2
+python-2.7.2 
+
+配置交叉编译工具
+1sudo mkdir /usr/local/arm
+
+
+创建目录，若目录已存在会提示错误，跳过即可
+
+1sudo tar zxvf arm-linux-gcc-4.3.2.tgz -C /
+
+
+编译器解压到/usr/local/arm
+
+1sudo g">
+<meta name="twitter:image" content="http://vell001.ml/images/20140425194440.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://vell001.ml/2014/04/26/cross-compiling-python2.7.2.html"/>
+
+
+
+
+
+  <title>交叉编译python2.7.2 | VBlog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">VBlog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Welcome to vell001's world</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://vell001.ml/2014/04/26/cross-compiling-python2.7.2.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Vell Bibi">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="VBlog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">交叉编译python2.7.2</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-04-26T02:01:35+08:00">
+                Apr 26 2014
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><ul>
+<li>ubuntu12.04 x86</li>
+<li>ok6410开发板</li>
+<li>arm-linux-gcc-4.3.2</li>
+<li>python-2.7.2 </li>
+</ul>
+<h2 id="配置交叉编译工具"><a href="#配置交叉编译工具" class="headerlink" title="配置交叉编译工具"></a>配置交叉编译工具</h2><ul>
+<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo mkdir /usr/local/arm</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>创建目录，若目录已存在会提示错误，跳过即可</p>
+<ul>
+<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo tar zxvf arm-linux-gcc-4.3.2.tgz -C /</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>编译器解压到/usr/local/arm</p>
+<ul>
+<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo gedit /etc/profile</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>添加如下内容<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">export PATH=/usr/local/arm/4.3.2/bin:$PATH</div><div class="line">export TOOLCHAIN=/usr/local/arm/4.3.2</div><div class="line">export TB_CC_PREFIX=arm-linuxexport PKG_CONFIG_PREFIX=$TOOLCHAIN/arm-none-linux-gnueabi</div></pre></td></tr></table></figure></p>
+<ul>
+<li>要想永久生效的话就重启吧，要想在当前终端用一下的话：<code>source /ect/profile</code>(建议重启下啦)</li>
+<li>测试下：<code>arm-linux-gcc -v</code> 出现如下提示说明安装成功啦<br><img src="/images/20140425194440.png" alt=""></li>
+</ul>
+<h2 id="准备相关文件"><a href="#准备相关文件" class="headerlink" title="准备相关文件"></a>准备相关文件</h2><ol>
+<li>python2.7.2源代码 : <a href="http://www.python.org/ftp/python/2.7.2/Python-2.7.2.tar.bz2" target="_blank" rel="external">http://www.python.org/ftp/python/2.7.2/Python-2.7.2.tar.bz2</a>，下载后解压</li>
+<li>arm-linux-gcc-4.3.2，自行google吧，我用的是开发板自带的，你按照需要选择就行了</li>
+<li>补丁文件：去我的github找相对应的补丁文件吧：<a href="https://github.com/vell001/python_cross_compilation_patchs" target="_blank" rel="external">vell001-github</a>，下载好后放到python的源代码目录</li>
+</ol>
+<h2 id="编译生成PC版本的python语法解析器"><a href="#编译生成PC版本的python语法解析器" class="headerlink" title="编译生成PC版本的python语法解析器"></a>编译生成PC版本的python语法解析器</h2><p>进入解压后的python源代码目录，执行：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">./configure  # for build-system&apos;s native tool-chain</div><div class="line">make python Parser/pgen</div><div class="line">mv python hostpython</div><div class="line">mv Parser/pgen Parser/hostpgen</div><div class="line">make distclean</div></pre></td></tr></table></figure></p>
+<p>成功后：<br><img src="/images/20140425200654.png" alt=""></p>
+<h2 id="打补丁"><a href="#打补丁" class="headerlink" title="打补丁"></a>打补丁</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">patch -p1 &lt; Python-2.7.2-xcompile.patch</div></pre></td></tr></table></figure>
+<p><img src="/images/20140425210131.png" alt=""></p>
+<h2 id="编译开始啦"><a href="#编译开始啦" class="headerlink" title="编译开始啦"></a>编译开始啦</h2><p>我的是arm-linux-gcc，也可以是别的编译器的哦<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">CC=arm-linux-gcc CXX=arm-linux-g++ AR=arm-linux-ar RANLIB=arm-linux-ranlib ./configure --host=arm-linux --build=i686-linux-gnu --prefix=/python --disable-ipv6 --enable-shared</div><div class="line"></div><div class="line">make HOSTPYTHON=./hostpython HOSTPGEN=./Parser/hostpgen BLDSHARED=&quot;arm-linux-gcc -shared&quot; CROSS_COMPILE=arm-linux- CROSS_COMPILE_TARGET=yes HOSTARCH=arm-linux BUILDARCH=arm-linux-gnu SVNVERSION=2.7.2</div></pre></td></tr></table></figure></p>
+<p>完成后：<br><img src="/images/20140425220715.png" alt=""></p>
+<h2 id="编译时问题"><a href="#编译时问题" class="headerlink" title="编译时问题"></a>编译时问题</h2><p>我make时没有加<code>-i</code>参数（忽略错误），会报一些错误，导致编译进行不下去，而这些错误就是这几个模块的问题：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">_bsddb             _curses            _curses_panel   </div><div class="line">_sqlite3           _ssl               _tkinter        </div><div class="line">bsddb185           bz2                dbm             </div><div class="line">dl                 gdbm               linuxaudiodev   </div><div class="line">nis                ossaudiodev        readline        </div><div class="line">sunaudiodev        zlib</div></pre></td></tr></table></figure></p>
+<p>这些模块没有编译进去没啥大影响的，要是真要用上了再说吧，google肯定会有解决方法的</p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><ul>
+<li><p>先建一个装安装文件的目录：<code>_install</code> （我的完整路径是<code>~/Python-2.7.2/_install</code>，在<code>make install</code>的<code>prefix</code>属性中用到，看清楚哦，不要搞错了）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mkdir _install</div></pre></td></tr></table></figure>
+</li>
+<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">make install HOSTPYTHON=./hostpython BLDSHARED=&quot;arm-linux-gcc -shared&quot; CROSS_COMPILE=arm-linux- CROSS_COMPILE_TARGET=yes prefix=~/Python-2.7.2/_install</div></pre></td></tr></table></figure>
+</li>
+<li><p>成功后会在<code>_install</code>目录下创建四个目录:<br><img src="/images/20140426001533.png" alt=""></p>
+</li>
+</ul>
+<h2 id="打包啦！"><a href="#打包啦！" class="headerlink" title="打包啦！"></a>打包啦！</h2><ul>
+<li>先来压缩下<code>lib</code>吧<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">cd _install/lib/python2.7</div><div class="line">python2 -m py_compile *.py</div><div class="line">rm *.py</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>这样就把库文件夹整个压缩了一半多啊，上图：<br>压缩前：<img src="/images/20140426005143.png" alt=""><br>压缩后:<img src="/images/20140426004936.png" alt=""></p>
+<ul>
+<li>打包放到开发板上测试啦<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">tar czvf arm-python2.7.2.tar.gz *</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>打包后总共12.7M，还行吧，在没有做任何压缩之前可是40M啊~~~</p>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p>我是直接上U盘拷的，这样快一点，我直接安装在<code>/python</code>目录下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">mkdir /python</div><div class="line">cp arm-python2.7.2.tar.gz /python/ &amp;&amp; cd /python</div><div class="line">tar -zxvf arm-python2.7.2.tar.gz</div></pre></td></tr></table></figure></p>
+<p>把库文件<code>libpython2.7.so libpython2.7.so.1.0</code>放到<code>/usr/lib</code>下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">cd lib/</div><div class="line">mv libpython2.7.so* /usr/lib</div></pre></td></tr></table></figure></p>
+<p>配置环境变量<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">vi /etc/profile</div></pre></td></tr></table></figure></p>
+<p>添加：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">export PYTHONHOME=/python</div><div class="line">export PYTHONPATH=.:$PYTHONHOME:$PYTHONHOME/lib/python2.7/site-packages</div><div class="line">export PATH=$PATH:$PYTHONHOME/bin:$PYTHONHOME:$PYTHONPATH</div></pre></td></tr></table></figure></p>
+<p>立即生效或重启<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">source /etc/profile</div></pre></td></tr></table></figure></p>
+<p>这下就OK啦：<br><img src="/images/20140426020001.png" alt=""></p>
+<h3 id="今天就到这了，太晚了，就不优化了，python还有很多可以压缩的地方，明天再说吧，晚安啦"><a href="#今天就到这了，太晚了，就不优化了，python还有很多可以压缩的地方，明天再说吧，晚安啦" class="headerlink" title="今天就到这了，太晚了，就不优化了，python还有很多可以压缩的地方，明天再说吧，晚安啦"></a>今天就到这了，太晚了，就不优化了，python还有很多可以压缩的地方，明天再说吧，晚安啦</h3><p>2014/4/26 2:01:35 </p>
+<blockquote>
+<p>参考:<a href="http://randomsplat.com/id5-cross-compiling-python-for-embedded-linux.html" target="_blank" rel="external">http://randomsplat.com/id5-cross-compiling-python-for-embedded-linux.html</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/python/" rel="tag"># python</a>
+          
+            <a href="/tags/linux/" rel="tag"># linux</a>
+          
+            <a href="/tags/ok6410/" rel="tag"># ok6410</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/04/13/java_review003.html" rel="next" title="java 复习003">
+                <i class="fa fa-chevron-left"></i> java 复习003
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/04/29/java_install_opencv.html" rel="prev" title="java安装使用opencv">
+                java安装使用opencv <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="Vell Bibi" />
+          <p class="site-author-name" itemprop="name">Vell Bibi</p>
+           
+              <p class="site-description motion-element" itemprop="description">Share something I know</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">43</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-name">分类</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">43</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#环境"><span class="nav-number">1.</span> <span class="nav-text">环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#配置交叉编译工具"><span class="nav-number">2.</span> <span class="nav-text">配置交叉编译工具</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#准备相关文件"><span class="nav-number">3.</span> <span class="nav-text">准备相关文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编译生成PC版本的python语法解析器"><span class="nav-number">4.</span> <span class="nav-text">编译生成PC版本的python语法解析器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#打补丁"><span class="nav-number">5.</span> <span class="nav-text">打补丁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编译开始啦"><span class="nav-number">6.</span> <span class="nav-text">编译开始啦</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编译时问题"><span class="nav-number">7.</span> <span class="nav-text">编译时问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装"><span class="nav-number">8.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#打包啦！"><span class="nav-number">9.</span> <span class="nav-text">打包啦！</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#测试"><span class="nav-number">10.</span> <span class="nav-text">测试</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#今天就到这了，太晚了，就不优化了，python还有很多可以压缩的地方，明天再说吧，晚安啦"><span class="nav-number">10.1.</span> <span class="nav-text">今天就到这了，太晚了，就不优化了，python还有很多可以压缩的地方，明天再说吧，晚安啦</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Vell Bibi</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
