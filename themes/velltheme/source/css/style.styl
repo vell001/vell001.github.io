@@ -1,0 +1,21 @@
+@import 'nib'
+global-reset()
+@import '_base/variable'
+@import '_base/font'
+@import '_base/public'
+@import '_partial/header'
+@import '_partial/index'
+@import '_partial/article'
+@import '_partial/helper'
+@import '_partial/aside'
+@import '_partial/footer'
+@import '_partial/comment'
+@import '_partial/original_url'
+if highlight
+  @import '_base/code'
+
+if fancybox
+  @import '_partial/gallery'
+
+if totop
+  @import '_partial/totop'

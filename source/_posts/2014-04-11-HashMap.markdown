@@ -1,0 +1,33 @@
+---
+layout: post
+title: "HashMap笔记"
+date: 2014-04-10 20:12:04  +0800
+updated: 2014-04-11 21:04:02 +0800
+comments: true
+categories: [algorithm]
+tags: [hash,HashMap,algorithm]
+---
+> 在我之前的帖子里简介了hash在数据结构的实现：[hash](http://vblog.vell001.ml/2014/04/03/hash.html)，今天特别看了一些HashMap相关的东西，分享下
+
+## hash相关:
+1. hash（散列）就是通过某种特殊的[散列算法](http://vblog.vell001.ml/2014/04/03/hash.html#%E6%95%A3%E5%88%97%E5%87%BD%E6%95%B0)，将一个不等的输入转换成**唯一固定**的输出  
+
+2. 在HashMap中hash主要用于，根据key计算出一个**唯一固定**的内存地址（也可以理解为数组下标）
+
+3. 由于hash算法可能出现不唯一的情况，也就是两个不同的key，hash出来的内存地址相同了，这就出现了冲突，HashMap的冲突处理方法是：拉链法，如图:![](/images/hashmap_001.png)
+
+<!-- more -->
+## HashMap内部实现
+1. 在内部维护一个键值数组：`Entry<K, V>[]`,每对键值都存放在一个Entry类里，Entry是个Map的内部类，专门用来存储键值对的，还有用来得到key，value的Set集合
+
+2. put时：
+	1. 根据key，hash得到**唯一固定**数组下标
+	2. 判断Entry数组在此下标处是否为空
+		* 为空则直接赋值
+		* 不为空先取出值作为返回值，然后覆盖掉
+
+3. get时：
+	1. 同样根据key，hash得到**唯一固定**数组下标
+	2. 访问Entry数组
+
+> 参考至：[http://www.cnblogs.com/Bob-FD/p/3410614.html](http://www.cnblogs.com/Bob-FD/p/3410614.html)

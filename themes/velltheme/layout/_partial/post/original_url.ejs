@@ -1,0 +1,6 @@
+<% if (theme.original_url.enable) {%>
+<p class="original_url">
+	<%=theme.original_url.pre %> <a target="_blank" href="<%=page.permalink %>"><%=page.permalink %></a></br>
+	written by <a target="_blank" href="<%=config.url %>/about "><%=config.author %></a> posted at <a target="_blank" href="<%=config.url %>"><%=config.title %></a>
+</p>
+<% } %>

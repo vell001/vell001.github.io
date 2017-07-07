@@ -1,0 +1,170 @@
+---
+layout: post
+title: VSim [a racing-simulator by vell001]
+date: 2014-03-09 12:13:05 +0800
+comments: true
+categories: VSim
+tags: [VSim,racing]
+---
+
+{{ page.title }}
+---------------------
+This is my first project about Racing. I am a Chinese with bad English, and today is my first time to use English to write a post, Sorry for my bad Engilsh first…
+
+I start my project from last year(2013). I am learning from *[RacingMat](http://www.x-sim.de/forum/memberlist.php?mode=viewprofile&u=2248)*, here is his project:[Finished 2DOF 12V DC wiper arduino playseat](http://www.x-sim.de/forum/viewtopic.php?t=943). Thank *[RacingMat](http://www.x-sim.de/forum/memberlist.php?mode=viewprofile&u=2248)* very much!  
+My project is in progressing, I will update for every detail I finished. 
+
+-------------------------
+###Control Part
+I am using two 12V DC truck wiper motors, bought in *[taobao](http://www.taobao.com)*;
+The controller is *[Arduino Uno](http://www.arduino.cc)*, and the motor driver is *[MotoMonster](http://item.taobao.com/item.htm?id=16852136684)*(I don't do any advertising, this is an only one MotoMonster-driver I can find in taobao, I have no choice, so bought this one. Please give me a message if you find anthor driver, my email:*[vell001@qq.com](mailto:vell001@qq.com)*, thanks.
+<!-- more -->
+Here are some pictures: 
+> ![items](http://images.cnitblog.com/blog/478900/201312/14204352-33791a99c7f743039a95a49b1a05f13c.png) 
+
+> Something I bought in taobao
+
+----------
+> ![arduino](http://images.cnitblog.com/blog/478900/201312/14204411-067f1f01ea93464ba7fb6e338787fe5c.jpg)
+> ![arduino](http://images.cnitblog.com/blog/478900/201312/14204432-85d2d2c0001b4b5c870ae26250de9a45.jpg)
+> ![arduino](http://images.cnitblog.com/blog/478900/201312/14204511-df9449897b6747e5859d087b5169c950.jpg)
+> ![arduino](http://images.cnitblog.com/blog/478900/201312/14204545-1fed53785c054128b47ec95138a62de2.jpg) 
+
+> My arduino board, made in China.(\*^_^\*)
+
+---------
+> ![motor driver](http://images.cnitblog.com/blog/478900/201312/14204614-cbacb685b45e45319b8ebe7792cce7a1.jpg)
+> ![motor driver](http://images.cnitblog.com/blog/478900/201312/14204643-66954c6dab6d40cb9e53064204d78aad.jpg)
+> ![motor driver](http://images.cnitblog.com/blog/478900/201312/14204733-42eb29fe70484861b6ecec81f240de5c.jpg) 
+
+> My motor-driver [MotoMonster], It's very suit for arduino uno.
+
+---------
+> ![power](http://images.cnitblog.com/blog/478900/201312/14204828-0076cac18e7848a4b4a6b20c5cbb02c8.jpg)
+> ![power](http://images.cnitblog.com/blog/478900/201312/14204853-1db3a2a3d5b9450ea568c07c1ae6847b.jpg)
+> ![power](http://images.cnitblog.com/blog/478900/201312/14204919-3c0cb01ee7784f7eb616590d145c0ffe.jpg)
+
+> My power supply, 12V 30A, look very nice. But the shopkeeper didn't give me a wire,
+so sad for me. I am just a university student, have nothing can use for my project in my dormitory. So I broke my socket only for a wire, bad idea...but I don't have another idea
+
+----------
+> ![motor](http://images.cnitblog.com/blog/478900/201312/14205009-32f854f7f8574dbd9a658bf63e0df438.jpg)
+> ![motor](http://images.cnitblog.com/blog/478900/201312/14205051-8f60ee4eb1a2451b80a58708e6b34776.jpg)
+> ![motor](http://images.cnitblog.com/blog/478900/201312/14204951-e99d7341dc80467f97da1a361ed05b0a.jpg)
+
+> At first glance, it was bigger and much more powerful than I imagined. Out of curiousity, I splited it, its structure is very simple.  
+> ![motor](http://images.cnitblog.com/blog/478900/201312/14205119-53ae549817ef46dc8a7073b5a7980dfe.jpg)
+
+----------
+All parts of controller are ready, it's time to put all parts together. 
+
+----------
+> ![controller](http://images.cnitblog.com/blog/478900/201312/14205138-39f6ca0545b346db8937baa78d4f3ce4.jpg)
+> ![controller](http://images.cnitblog.com/blog/478900/201312/14205206-d2a5c0081beb475a855b9b97173015bd.jpg)
+> ![controller](http://images.cnitblog.com/blog/478900/201312/14205224-ae8e58961e4d4324ac0453cdf3e04627.jpg)
+> ![controller](http://images.cnitblog.com/blog/478900/201312/14205255-465f5a74f4864281afdaf0e29f3daf14.jpg)
+
+> Who can guess what kind of wire I am using? Yes, I am using *Ethernet Cable*. I have unpacked 3m *Ethernet Cable*. *Ethernet Cable* is a bit hard.
+
+----------
+> ![potentiometer](http://images.cnitblog.com/blog/478900/201312/14205323-2f26e09df861425eadc1ab3616114a4b.jpg)
+> ![potentiometer](http://images.cnitblog.com/blog/478900/201312/14205352-a3a4de41dd3840a0bbecf54e50a03220.jpg)
+> ![potentiometer](http://images.cnitblog.com/blog/478900/201312/14205416-5e89456d96f942f686ee9c59834e6aa1.jpg)
+
+> I bought those potentiometers from e-market, 10K Ohm. Using those potentiometers and my two motors to DIY two SERVO. 
+
+------------
+> Put circuit diagram here:
+
+> <img src="/images/20120703223559.gif" width="900"/>
+
+-------------
+> My controller's first test video:
+
+> <embed src="http://www.tudou.com/v/nCs3C961Ixk/&resourceId=0_05_02_99&tid=0/v.swf" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" wmode="opaque" width="480" height="400"></embed>
+
+-------------
+###Seat Part
+ Yesterday, I bought 12m steel cube. Today I want to get a second-hand *cardan*. 
+
+2014/3/9 13:24:57
+
+------------
+I was not so lucky, I didn't find a *street scrap*. I asked a hostess of a garage for a new cardan, her price was so higher than my price that I expected. Then, I went back, and bought in taobao.
+
+> ![items](/images/20140309173426.png)
+
+> The cardan's size is 20\*32\*85 mm; and zhe *joint bearing* is M5 internal thread.
+
+------------
+I still need some screws, some rebar, and a seat; Most importent thing is an *electric welding machine*! Good Luck to myself...
+
+2014/3/9 17:42:37 
+
+-------------
+Yesterday, I had finish *Steel Skeleton* of my simulator, I'll put some picture here later.
+I am so unlucky today. In the morning, I tried to fix my two motor on the *bottom support*, but I have failed. In the afternoon, I fixed my two motor and two *Support Bar*, I just want to conect all the controller part and adjust some detail, but something wrong with my *Driver-Broad*, when I turn on power support,   before long, I smelled a burning smell, I saw a *Audion* just had burned on the driver board. Then, I could adjust one potentiometer and all motor run. Bad luck!!! I'll buy a new driver for my two motors
+
+2014/3/15 23:30:21  
+
+--------------
+I received my new *MotorDriver* today, I will forget *MotoMonster-Driver*
+> ![MotorDriver](/images/20140318182635.jpg)
+
+> Look good, I'll test it tomorrow
+
+I rewrited all codes and redesigned wiring diagram, I'll put my codes here later, here is my own diagram:
+> [![diagram](/images/20140318221922.png)](/images/vsim_wiring_diagram.jpg)
+
+> designed with *Photoshop*
+
+2014/3/18 22:16:05 
+
+----------------
+I used *MonsterDriver* back, because the new driver have a big flaw. When my arduino poweroff or reboot, the driver's *PWM* pin will read some wrong data, and supply power to my motor, then it's will damage all my design.
+
+I'll talk about some details later. I want to put my test video here now:
+
+> <embed src="http://www.tudou.com/v/83MhztKWNDM/&resourceId=99962045_05_02_99&tid=0/v.swf" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" wmode="opaque" width="480" height="400"></embed>  
+2014/3/21 23:37:42 
+
+---------------
+Today is a dark day for me. My *MonsterDriver* was completely broken! Bad Luck~ It's my mistake, last time I found my motor's power wire is connected to it's shell. When I powered *MonsterDriver* on, just like *ShortCircuit*, my *MonsterDriver* was burned(not completely broken). And then I thinked I had solved this problem, I fixed my motor on a *wood board*. I was too careless, I didn't notice that my two motor connected together through the upper frame!!!This time my *MonsterDriver* was completely broken! I don't know why that my *MonsterDriver* only supply a positive voltage, in other words, the motor only can go forward. Very Very Sad!!! I must be more careful in future.  
+
+Some good news, I got a second hand seat, and finished all installations of the upper frame, In other words, my simulator just leaves the matter of the *motor driver* module.   
+2014-03-26 22:21:24
+
+---------------------
+Last sunday, I finished my *VSIM* project. It's amazing for me, although looks a bit ugly. This is my test video:  
+> <embed src="http://player.youku.com/player.php/sid/XNjkzMDQ1NjQ0/v.swf" allowFullScreen="true" quality="high" width="480" height="400" align="middle" allowScriptAccess="always" type="application/x-shockwave-flash"></embed>
+
+I am using my third *MotorDriver*, I am busy now, I'll update more detail later  
+2014-04-02 20:55:24 
+
+---------------------
+Today I want to update some detail of this project. I have finished this project about a month ago.   
+
+Add some more picture:
+> My universal joint    
+> ![](/images/vsim/IMG_20140315_123517.jpg)  
+> I use the two big screw connect the universal joint  
+> ![](/images/vsim/IMG_20140315_123556.jpg)  
+> Support bar, two screw welded together, the first version, than I make this more strong
+> ![](/images/vsim/IMG_20140315_153237.jpg)
+> The second version
+> ![](/images/vsim/IMG_20140322_145107.jpg)
+> ![](/images/vsim/IMG_20140322_150321.jpg)
+> My pattener~~~
+> ![](/images/vsim/IMG_20140315_193756.jpg)
+> Two motor
+> ![](/images/vsim/IMG_20140319_154956.jpg)
+> Motor fixed on the base
+> ![](/images/vsim/IMG_20140319_170013.jpg)
+> Motor's decomposition picture
+> ![](/images/vsim/IMG_20140330_132427.jpg)
+> ![](/images/vsim/IMG_20140330_133802.jpg)
+> My third *MotorDriver*, it's smaller than my second MotorDriver, and powerful. I like it
+> ![](/images/vsim/IMG_20140330_142630.jpg)
+> My arduino uno controller
+> ![](/images/vsim/IMG_20140405_113913.jpg)
+
